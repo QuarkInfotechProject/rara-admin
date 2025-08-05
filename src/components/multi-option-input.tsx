@@ -1,0 +1,63 @@
+import React, { useState } from "react";
+import { IconPlus, IconX } from "@tabler/icons-react";
+import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+
+interface Props extends React.HTMLAttributes<HTMLInputElement> {
+  options: string[] | undefined;
+  setOptions: (options: string[]) => void;
+}
+
+function MultiOptionInput({ options, setOptions, ...rest }: Props) {
+  const [error, setError] = useState("");
+  const [value, setValue] = useState("");
+
+  function addOption() {
+    if (value && !options?.some((item) => item.toLowerCase() === value.toLowerCase())) {
+      setOptions([...(options ? options : []), value]);
+      setValue("");
+      setError("");
+    } else {
+      setError(value ? "Value already exists" : "Please enter a value");
+    }
+  }
+
+  function removeOption(e: React.MouseEvent<SVGElement>) {
+    if (options) {
+      const updatedOptions = options.filter((option) => option !== e.currentTarget.id);
+      setOptions(updatedOptions);
+    }
+  }
+
+  return (
+    <div>
+      <div className="flex gap-2 flex-wrap mb-3">
+        {options?.map((option) => (
+          <Badge className="rounded-sm px-2" key={option}>
+            {option} <IconX id={option} size={16} className="text-white ml-2 cursor-pointer" onClick={removeOption} />
+          </Badge>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <Input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          {...rest}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addOption();
+            }
+          }}
+        />
+        <Button type="button" onClick={addOption}>
+          <IconPlus />
+        </Button>
+      </div>
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+export default MultiOptionInput;

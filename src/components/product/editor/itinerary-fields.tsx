@@ -1,0 +1,112 @@
+import { PlusCircle } from "lucide-react";
+import { useFormContext } from "react-hook-form";
+import EditorCard from "@/components/editor-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { IconX } from "@tabler/icons-react";
+import { FormSchema } from "./product-editor";
+import dynamic from "next/dynamic";
+
+const CkEditor = dynamic(() => import("@/components/ck-editor"), { ssr: false });
+
+const defaultItinerary = {
+  time_window: "",
+  activity: "",
+  order: 1,
+};
+
+function ItineraryFields() {
+  const form = useFormContext<FormSchema>();
+  const itineraries = form.watch("itinerary") ?? [];
+
+  function addItinerary() {
+    form.setValue("itinerary", [...itineraries, defaultItinerary]);
+  }
+
+  function removeItinerary(index: number) {
+    const filteredItineraries = itineraries.filter((_, i) => i !== index);
+    form.setValue("itinerary", filteredItineraries);
+  }
+
+  function changeInput(index: number, data: { time_window?: string; activity?: string; order?: number }) {
+    let itinerary = itineraries[index];
+
+    if (itinerary) {
+      itinerary = {
+        ...itinerary,
+        ...data,
+      };
+      itineraries[index] = itinerary;
+      form.setValue("itinerary", itineraries);
+    }
+  }
+
+  return (
+    <div className="editor-grid">
+      <Button type="button" size="sm" className="gap-1 ml-auto w-fit" onClick={addItinerary}>
+        <PlusCircle size={16} />
+        <span className="sr-only sm:not-sr-only">Add</span>
+      </Button>
+      <EditorCard title="Itineraries">
+        {itineraries.map((itinerary, index) => (
+          <Itinerary
+            key={index}
+            index={index}
+            {...itinerary}
+            changeInput={changeInput}
+            removeItinerary={removeItinerary}
+          />
+        ))}
+      </EditorCard>
+    </div>
+  );
+}
+
+export default ItineraryFields;
+
+interface ItineraryProps {
+  index: number;
+  time_window: string;
+  activity: string;
+  order: number;
+  changeInput: Function;
+  removeItinerary: Function;
+}
+
+function Itinerary(props: ItineraryProps) {
+  return (
+    <div className="relative border border-dashed rounded-lg p-3 grid gap-4">
+      <Label>Time Window</Label>
+      <Input
+        value={props.time_window}
+        onChange={(e) =>
+          props.changeInput(props.index, {
+            time_window: e.target.value,
+          })
+        }
+        placeholder="Time Window"
+      />
+      <Label>Activity</Label>
+      <CkEditor
+        id={`${props.index}-itinerary`}
+        initialData={props.activity}
+        onChange={(content) => props.changeInput(props.index, { activity: content })}
+      />
+      <Label>Order</Label>
+      <Input
+        type="number"
+        value={props.order}
+        onChange={(e) =>
+          props.changeInput(props.index, {
+            order: Number(e.target.value),
+          })
+        }
+        placeholder="1"
+      />
+      <div className="absolute top-2 right-2 text-black dark:text-white *:bg-white dark:*:bg-stone-900 *:border *:rounded-full *:p-1 *:cursor-pointer flex gap-2">
+        <IconX onClick={() => props.removeItinerary(props.index)} />
+      </div>
+    </div>
+  );
+}

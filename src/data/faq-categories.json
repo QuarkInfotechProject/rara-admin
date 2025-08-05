@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Partner",
+    "slug": "partner"
+  },
+  {
+    "name": "Impact",
+    "slug": "impact"
+  },
+  {
+    "name": "Inquery",
+    "slug": "inquery"
+  },
+  {
+    "name": "Cancellation",
+    "slug": "cancellation"
+  },
+  {
+    "name": "Why Host",
+    "slug": "why-host"
+  }
+]

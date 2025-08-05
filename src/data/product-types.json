@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Homestay",
+    "slug": "homestay"
+  },
+  {
+    "name": "Package",
+    "slug": "package"
+  },
+  {
+    "name": "Experience",
+    "slug": "experience"
+  },
+  {
+    "name": "Circuit",
+    "slug": "circuit"
+  }
+]

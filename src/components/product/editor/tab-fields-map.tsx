@@ -1,0 +1,40 @@
+const tabFieldsMap = {
+  general: [
+    "name",
+    "slug",
+    "tagline",
+    "short_code",
+    "youtube_link",
+    "night",
+    "original_price_usd",
+    "discounted_price_usd",
+  ],
+  description: ["short_description", "description", "impact"],
+  location: ["latitude", "longitude", "location", "region", "how_to_get"],
+  faqs: ["faqs"],
+  hosts: ["hosts"],
+  highlights: ["highlights"],
+  overview: ["overview"],
+  itinerary: ["itinerary"],
+  dossiers: ["dossiers"],
+  files: [
+    "files",
+    "featuredImages",
+    "galleryImages",
+    "locationCover",
+    "howToGet",
+  ],
+  other: [
+    "amenity",
+    "related_homestay",
+    "related_experience",
+    "related_circuit",
+    "related_package",
+    "nearby_homestay",
+    "manager_id",
+    "what_to_bring",
+    "excluded",
+  ],
+};
+
+export default tabFieldsMap;

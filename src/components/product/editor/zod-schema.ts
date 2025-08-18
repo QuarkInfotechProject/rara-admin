@@ -129,6 +129,7 @@ const baseSchema = z.object({
   category: z.enum(["trek", "tour", "activities", "safari"], {
     message: "Please select a valid category",
   }),
+  category_desc: nullableStringValue,
   type: z.string(),
   short_code: z
     .string()

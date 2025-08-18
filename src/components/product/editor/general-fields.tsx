@@ -26,6 +26,46 @@ function GeneralFields() {
       <EditorCard title="Basic">
         <FormField
           control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="trek">Trek</SelectItem>
+                  <SelectItem value="tour">Tour</SelectItem>
+                  <SelectItem value="activities">Activities</SelectItem>
+                  <SelectItem value="safari">Safari</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="category_desc"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category Description</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Lets make your best Trek memory with ultimate luxury experience"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
@@ -46,29 +86,6 @@ function GeneralFields() {
               <FormControl>
                 <Input placeholder="nepal-product" {...field} />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="category"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="trek">Trek</SelectItem>
-                  <SelectItem value="tour">Tour</SelectItem>
-                  <SelectItem value="activities">Activities</SelectItem>
-                  <SelectItem value="safari">Safari</SelectItem>
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}

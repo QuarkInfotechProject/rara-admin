@@ -15,7 +15,6 @@ function ProductEditorFiles() {
     callback: (files) => form.setValue("files.locationCover", files[0]),
   });
   const hostCoverFiles = useFilesSelector({
-    // @ts-expect-error
     defaultFilesIds: files?.hostCover ? [files.hostCover] : [],
     callback: (files) => form.setValue("files.hostCover", files[0]),
   });
@@ -37,7 +36,11 @@ function ProductEditorFiles() {
     isMulti: true,
     callback: (files) => form.setValue("files.galleryImages", files),
   });
-
+  const faqImagesFiles = useFilesSelector({
+    defaultFilesIds: files?.faqImages ? files.faqImages : [],
+    isMulti: true,
+    callback: (files) => form.setValue("files.faqImages", files),
+  });
   return (
     <div className="editor-grid [--files-selector-img-width:240px]">
       <EditorCard title="Featured Image">
@@ -88,6 +91,29 @@ function ProductEditorFiles() {
                   onSelect={galleryImagesFiles.selectFiles}
                   selectedFiles={galleryImagesFiles.selectedFiles}
                   onRemove={galleryImagesFiles.removeFile}
+                  isMulti
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </EditorCard>
+
+      <EditorCard title="FAQ Images">
+        <p className="text-sm text-muted-foreground">
+          Select up to 4 images for FAQ section
+        </p>
+        <FormField
+          control={form.control}
+          name="files.faqImages"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <FilesSelectorInput
+                  onSelect={faqImagesFiles.selectFiles}
+                  selectedFiles={faqImagesFiles.selectedFiles}
+                  onRemove={faqImagesFiles.removeFile}
                   isMulti
                 />
               </FormControl>

@@ -1,13 +1,25 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import SEOEditor from "../../seo-editor";
 import { FormSchema } from "./product-editor";
 
 function GeneralFields() {
   const form = useFormContext<FormSchema>();
-  const productType = form.watch("type");
 
   return (
     <div className="editor-grid">
@@ -19,7 +31,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Nepal homestay" {...field} />
+                <Input placeholder="Nepal Product" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -32,8 +44,31 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="nepal-homestay" {...field} />
+                <Input placeholder="nepal-product" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="category"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="trek">Trek</SelectItem>
+                  <SelectItem value="tour">Tour</SelectItem>
+                  <SelectItem value="activities">Activities</SelectItem>
+                  <SelectItem value="safari">Safari</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
@@ -45,7 +80,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Tagline</FormLabel>
               <FormControl>
-                <Input placeholder="The best homestay in nepal" {...field} />
+                <Input placeholder="The best product in nepal" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -58,7 +93,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Short Code</FormLabel>
               <FormControl>
-                <Input placeholder="nepalhomestay" {...field} />
+                <Input placeholder="nepalproduct" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,21 +112,19 @@ function GeneralFields() {
             </FormItem>
           )}
         />
-        {productType === "package" && (
-          <FormField
-            control={form.control}
-            name="night"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Night</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="1" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        <FormField
+          control={form.control}
+          name="night"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Night</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="1" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </EditorCard>
       <SEOEditor />
     </div>

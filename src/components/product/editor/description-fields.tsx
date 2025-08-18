@@ -33,7 +33,7 @@ function DescriptionFields() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Description">
+      <EditorCard title="Highlight">
         <FormField
           control={form.control}
           name="description"
@@ -52,27 +52,7 @@ function DescriptionFields() {
             </FormItem>
           )}
         />
-      </EditorCard>
-      <EditorCard title="Impact">
-        <FormField
-          control={form.control}
-          name="impact"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <CkEditor
-                  id="impact"
-                  initialData={impact}
-                  onChange={(content) => {
-                    form.setValue("impact", content);
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </EditorCard>
+      </EditorCard>      
     </div>
   );
 }

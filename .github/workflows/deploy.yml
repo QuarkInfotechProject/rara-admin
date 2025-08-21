@@ -1,0 +1,32 @@
+name: 🚀 Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⏳ Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: 🔐 Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🚀 Deploy to VPS
+        run: |
+          echo "Connecting and deploying Node.js app..."
+          ssh -o StrictHostKeyChecking=no quark4330@45.117.153.69 -p 2025"
+            cd /home/quarkinfotech.com/rara.admin.quarkinfotech.com &&
+            git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara-admin.git  &&
+            git pull origin main &&
+            npm install &&
+            npm run build &&
+            pm2 start ecosystem.config.js || pm2 restart ecosystem.config.js
+          "

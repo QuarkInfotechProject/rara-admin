@@ -19,73 +19,91 @@ const singleFile = z.coerce.number({
   message: "Please select a file",
 });
 
-const latitude = z.coerce
-  .number({ message: "Enter a valid number" })
-  .min(-90)
-  .max(90);
-const longitude = z.coerce
-  .number({ message: "Enter a valid number" })
-  .min(-180)
-  .max(180);
+const latitude = z.coerce.number({ message: "Enter a valid number" }).min(-90).max(90);
+const longitude = z.coerce.number({ message: "Enter a valid number" }).min(-180).max(180);
 
 const pricingSchema = z.array(
   z.object({
-    number_of_people: z.coerce
-      .number({ message: "Enter a valid number" })
-      .min(1),
-    original_price_usd: z.coerce
-      .number({ message: "Enter a valid number" })
-      .min(0),
-    discounted_price_usd: z.coerce
-      .number({ message: "Enter a valid number" })
-      .min(0),
+    number_of_people: z.coerce.number({ message: "Enter a valid number" }).min(1),
+    original_price_usd: z.coerce.number({ message: "Enter a valid number" }).min(0),
+    discounted_price_usd: z.coerce.number({ message: "Enter a valid number" }).min(0),
   })
 );
 
-// Add departure schema
-const departureSchema = z
-  .array(
+const baseSchema = z.object({
+  id: z.number().optional(),
+  name: z.string(),
+  slug: z
+    .string()
+    .transform((v) => v.toLowerCase())
+    .refine(
+      (v) => /^[a-zA-Z0-9-]+$/.test(v),
+      "Please enter a valid URL slug containing only letters, numbers, and hyphens."
+    ),
+  type: z.string(),
+  short_code: z
+    .string()
+    .transform((v) => v.toLowerCase())
+    .refine(
+      (v) => /^[a-zA-Z0-9-]+$/.test(v),
+      "Please enter a valid shortcode containing only letters, numbers, and hyphens."
+    ),
+  tagline: nullableStringValue,
+  short_description: nullableStringValue,
+  description: nullableStringValue,
+  prices: pricingSchema,
+  display_order: nullableStringValue,
+  youtube_link: z
+    .string()
+    .url()
+    .nullable()
+    .optional()
+    .transform((v) => v ?? ""),
+  latitude: latitude
+    .nullable()
+    .optional()
+    .transform((v) => v ?? 0),
+  longitude: longitude
+    .nullable()
+    .optional()
+    .transform((v) => v ?? 0),
+  location: nullableStringValue,
+  status: z.string(),
+  how_to_get: nullableStringValue,
+  cornerstone: z.coerce.number({ message: "Select a valid value" }),
+  is_occupied: z.coerce.number({ message: "Select a valid value" }),
+  impact: nullableStringValue,
+  faqs: z.array(
     z.object({
-      departure_from: z.string({ message: "Please select a departure date" }),
-      departure_to: z.string({ message: "Please select a return date" }),
-      price_per_person: z.string().transform((v) => (v === "" ? "0" : v)),
+      question: z.string(),
+      answer: z.string(),
+      order: z.coerce.number({ message: "Enter a valid number" }).transform((v) => v ?? 0),
     })
-  )
-  .default([]);
+  ),
+  tags: z.array(z.coerce.number()),
+  meta: z.object({ metaTitle, keywords, metaDescription }),
+  included: z.array(z.coerce.number({ message: "Select a valid value" })),
+  related_blogs: z.array(z.coerce.number({ message: "Select a blog" })),
+  display_homepage: z.coerce.number({ message: "Select a valid value" }),
+});
 
-// Updated overview schema to match the component structure
-const overviewObjectSchema = z
-  .object({
-    duration: z.string().optional().default(""),
-    location: z.string().optional().default(""),
-    trip_grade: z.string().optional().default(""),
-    maximum_altitude: z.string().optional().default(""),
-    group_size: z.string().optional().default(""),
-    activities: z.string().optional().default(""),
-    best_time: z.string().optional().default(""),
-    starts: z.string().optional().default(""),
-  })
-  .optional()
-  .default({});
+const filesBaseSchema = z.object({
+  featuredImage: singleFile,
+  featuredImages: nullableFilesArray,
+  galleryImages: nullableFilesArray,
+  locationCover: singleFile,
+  howToGet: singleFile,
+});
 
-// Legacy overview schema (array format) - kept for backward compatibility
-const overviewArraySchema = z
-  .array(
-    z.object({
-      name: z.string(),
-      description: z.string(),
-    })
-  )
-  .optional()
-  .default([]);
+const overviewSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
 
 const highlightsSchema = z.object({
   title: z.string(),
   description: z.string(),
-  highlightFiles: z
-    .object({ highlightImage: singleFile })
-    .nullable()
-    .optional(),
+  highlightFiles: z.object({ highlightImage: singleFile }).nullable().optional(),
   order: z.coerce.number().transform((v) => v ?? 0),
 });
 
@@ -116,132 +134,12 @@ const dossierSchema = z.object({
     .nullable(),
 });
 
-const baseSchema = z.object({
-  id: z.number().optional(),
-  name: z.string(),
-  slug: z
-    .string()
-    .transform((v) => v.toLowerCase())
-    .refine(
-      (v) => /^[a-zA-Z0-9-]+$/.test(v),
-      "Please enter a valid URL slug containing only letters, numbers, and hyphens."
-    ),
-  category: z.enum(["trek", "tour", "activities", "safari"], {
-    message: "Please select a valid category",
-  }),
-  category_desc: nullableStringValue,
-  type: z.string(),
-  short_code: z
-    .string()
-    .transform((v) => v.toLowerCase())
-    .refine(
-      (v) => /^[a-zA-Z0-9-]+$/.test(v),
-      "Please enter a valid shortcode containing only letters, numbers, and hyphens."
-    ),
-  tagline: nullableStringValue,
-  short_description: nullableStringValue,
-  description: nullableStringValue,
-  prices: pricingSchema,
-  departures: departureSchema,
-  display_order: nullableStringValue,
-  youtube_link: z
-    .string()
-    .url()
-    .nullable()
-    .optional()
-    .transform((v) => v ?? ""),
-  latitude: latitude
-    .nullable()
-    .optional()
-    .transform((v) => v ?? 0),
-  longitude: longitude
-    .nullable()
-    .optional()
-    .transform((v) => v ?? 0),
-  location: nullableStringValue,
-  status: z.string(),
-  how_to_get: nullableStringValue,
-  cornerstone: z.coerce.number({ message: "Select a valid value" }),
-  is_occupied: z.coerce.number({ message: "Select a valid value" }),
-  impact: nullableStringValue,
-  faqs: z.array(
-    z.object({
-      question: z.string(),
-      answer: z.string(),
-      order: z.coerce
-        .number({ message: "Enter a valid number" })
-        .transform((v) => v ?? 0),
-    })
-  ),
-  tags: z.array(z.coerce.number()),
-  meta: z.object({ metaTitle, keywords, metaDescription }),
-  included: z.array(z.coerce.number({ message: "Select a valid value" })),
-  related_blogs: z.array(z.coerce.number({ message: "Select a blog" })),
-  display_homepage: z.coerce.number({ message: "Select a valid value" }),
-});
-
-const filesBaseSchema = z.object({
-  featuredImage: singleFile,
-  featuredImages: nullableFilesArray,
-  galleryImages: nullableFilesArray,
-  faqImages: nullableFilesArray,
-  locationCover: singleFile,
-  howToGet: singleFile,
-});
-
-// Create unified product schema that includes all possible fields
-const productSchema = baseSchema.extend({
-  // Manager ID (from homestay)
-  manager_id: z.number().nullable().optional(),
-
-  // Region and max_occupant (from homestay)
-  region: nullableStringValue,
-  max_occupant: z.coerce
-    .number({ message: "Enter a valid number" })
-    .min(0)
-    .optional(),
-
-  // Night field (from package)
-  night: z.coerce.number().optional(),
-
-  // Arrays for different content types
-  hosts: z.array(hostsSchema).optional().default([]),
-  highlights: z.array(highlightsSchema).optional().default([]),
-
-  // Updated overview field to use object schema instead of array
-  overview: overviewObjectSchema,
-
-  itinerary: z.array(itinerarySchema).optional().default([]),
-  dossiers: z.array(dossierSchema).optional().default([]),
-
-  // Additional field arrays
-  amenity: z.array(z.number()).optional().default([]),
-  excluded: z.array(z.number()).optional().default([]),
-  what_to_bring: z.array(z.number()).optional().default([]),
-
-  // Related items
-  nearby_homestay: nullableStringArray,
-  related_homestay: nullableStringArray,
-  related_experience: nullableStringArray,
-  related_circuit: nullableStringArray,
-  related_package: nullableStringArray,
-
-  // Files - extend base files with additional file types
-  files: filesBaseSchema
-    .extend({
-      hostCover: singleFile.optional(),
-    })
-    .optional(),
-});
-
-// Legacy schemas - updated to use new overview format
 const homestaySchema = baseSchema.extend({
   manager_id: z.number().nullable(),
   region: nullableStringValue,
   max_occupant: z.coerce.number({ message: "Enter a valid number" }).min(0),
   hosts: z.array(hostsSchema),
   highlights: z.array(highlightsSchema),
-  overview: overviewObjectSchema, // Updated to use object schema
   amenity: z.array(z.number()),
   nearby_homestay: nullableStringArray,
   files: filesBaseSchema.extend({
@@ -250,7 +148,7 @@ const homestaySchema = baseSchema.extend({
 });
 
 const experienceSchema = baseSchema.extend({
-  overview: overviewObjectSchema, // Updated to use object schema
+  overview: z.array(overviewSchema),
   itinerary: z.array(itinerarySchema),
   dossiers: z.array(dossierSchema),
   what_to_bring: z.array(z.number()),
@@ -263,7 +161,7 @@ const circuitSchema = baseSchema.extend({
   latitude: latitude.transform((v) => v ?? 0),
   longitude: longitude.transform((v) => v ?? 0),
   location: z.string(),
-  overview: overviewObjectSchema, // Updated to use object schema
+  overview: z.array(overviewSchema),
   itinerary: z.array(itinerarySchema),
   dossiers: z.array(dossierSchema),
   excluded: z.array(z.number()),
@@ -278,7 +176,6 @@ const packageSchema = baseSchema.extend({
   location: z.string(),
   night: z.coerce.number(),
   highlights: z.array(highlightsSchema),
-  overview: overviewObjectSchema, // Updated to use object schema
   itinerary: z.array(itinerarySchema),
   dossiers: z.array(dossierSchema),
   excluded: z.array(z.number()),
@@ -287,30 +184,11 @@ const packageSchema = baseSchema.extend({
   files: filesBaseSchema,
 });
 
-// Type definitions
-type Product = z.infer<typeof productSchema>;
 type Homestay = z.infer<typeof homestaySchema>;
 type Experience = z.infer<typeof experienceSchema>;
 type Circuit = z.infer<typeof circuitSchema>;
 type Package = z.infer<typeof packageSchema>;
 
-// Overview type for the new object structure
-type OverviewObject = z.infer<typeof overviewObjectSchema>;
+export { baseSchema, homestaySchema, experienceSchema, circuitSchema, packageSchema };
 
-// Export the schemas
-export {
-  baseSchema,
-  productSchema,
-  homestaySchema,
-  experienceSchema,
-  circuitSchema,
-  packageSchema,
-  departureSchema,
-  overviewObjectSchema,
-};
-
-// Export the types
-export type { Product, Homestay, Experience, Circuit, Package, OverviewObject };
-
-// Export the Departure type
-export type Departure = z.infer<typeof departureSchema>[0];
+export type { Homestay, Experience, Circuit, Package };

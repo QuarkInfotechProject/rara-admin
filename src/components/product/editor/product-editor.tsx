@@ -15,6 +15,7 @@ import FAQSFields from "./faqs-fields";
 import Files from "./files";
 import GeneralFields from "./general-fields";
 import HighlightsFields from "./highlights-fields";
+import HostsFields from "./hosts-fields";
 import ItineraryFields from "./itinerary-fields";
 import LocationFields from "./location-fields";
 import OtherFields from "./other-fields";
@@ -22,17 +23,26 @@ import OverviewFields from "./overview-fields";
 import PricingFields from "./pricing-fields";
 import PublishControls from "./publish-controls";
 import tabFieldsMap from "./tab-fields-map";
-import { productSchema, Product } from "./zod-schema";
+import {
+  baseSchema,
+  Circuit,
+  circuitSchema,
+  Experience,
+  experienceSchema,
+  Homestay,
+  homestaySchema,
+  Package,
+  packageSchema,
+} from "./zod-schema";
 import toast from "react-hot-toast";
 import DossierFields from "./dossier-fields";
-import DepartureDatesField from "./departure-date";
 
 interface Props {
   initialData?: Partial<FormSchema>;
   edit?: boolean;
 }
 
-export type FormSchema = Product;
+export type FormSchema = Homestay | Package | Circuit | Experience;
 
 // Helper function to convert form data to FormData
 function convertToFormData(data: FormSchema): FormData {
@@ -56,6 +66,7 @@ function convertToFormData(data: FormSchema): FormData {
       formData.append(fieldName, String(value));
     }
   };
+  
 
   (Object.keys(data) as (keyof FormSchema)[]).forEach((key) => {
     processValue(key as string, data[key]);
@@ -66,11 +77,11 @@ function convertToFormData(data: FormSchema): FormData {
 
 function ProductEditor({ initialData, edit }: Props) {
   const [activeTab, setActiveTab] = useState("general");
-  const [formSchema, setFormSchema] = useState<ZodSchema>(productSchema);
+  const [formSchema, setFormSchema] = useState<ZodSchema>(baseSchema);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "product",
+      type: "homestay",
       cornerstone: 0,
       is_occupied: 0,
       display_homepage: 0,
@@ -78,18 +89,21 @@ function ProductEditor({ initialData, edit }: Props) {
       ...initialData,
     },
   });
+  const productType = form.watch("type");
   const router = useRouter();
   const errors = form.formState.errors;
-
   async function handleSubmit(data: FormSchema) {
-    try {
-      // Check if we have files to determine submission type
-      const shouldSendAsFormData = hasFiles(data);
+    try {           
+
+      // Always send circuits as FormData, others check for files
+      const shouldSendAsFormData = productType === "circuit" || hasFiles(data);
 
       if (shouldSendAsFormData) {
         const formData = convertToFormData(data);
         await axios.post(
-          edit ? `/api/product/update` : `/api/product/create`,
+          edit
+            ? `/api/product/${productType}/update`
+            : `/api/product/${productType}/create`,
           formData,
           {
             headers: {
@@ -98,10 +112,12 @@ function ProductEditor({ initialData, edit }: Props) {
           }
         );
       } else {
+
         // Check for non-serializable values before sending
         try {
           const jsonString = JSON.stringify(data);
-        } catch (jsonError) {
+          
+        } catch (jsonError) {         
           // Try to identify the problematic fields
           Object.keys(data).forEach((key) => {
             try {
@@ -115,8 +131,11 @@ function ProductEditor({ initialData, edit }: Props) {
           });
         }
 
+        // Send as regular JSON if no files and not a circuit
         await axios.post(
-          edit ? `/api/product/update` : `/api/product/create`,
+          edit
+            ? `/api/product/${productType}/update`
+            : `/api/product/${productType}/create`,
           data
         );
       }
@@ -125,12 +144,89 @@ function ProductEditor({ initialData, edit }: Props) {
         queryKey: ["products"],
       });
       toast.success("Product updated successfully");
-      !edit && router.push(`/admin/product`);
+      !edit && router.push(`/admin/product/${productType}`);
     } catch (error) {
       displayError(error, {});
     }
   }
 
+  function convertToFormData(data: FormSchema): FormData {
+    const formData = new FormData();
+
+    const processValue = (key: string, value: any, parentKey?: string) => {
+      const fieldName = parentKey ? `${parentKey}[${key}]` : key;
+
+      if (value === null || value === undefined) {
+        // For required fields, send empty string instead of skipping
+        if (key === "manager_id" || key === "guide_id" || key === "driver_id") {
+          formData.append(fieldName, "");
+        }
+        return;
+      }
+
+      if (value instanceof File) {
+
+        formData.append(fieldName, value);
+      } else if (Array.isArray(value)) {
+        console.log(
+          `Processing array field: ${fieldName}, length:`,
+          value.length
+        );
+
+        // Special handling for dossiers array - treat as single object
+        if (key === "dossiers" && value.length > 0) {
+          const dossier = value[0]; // Take first (and only) dossier
+          if (typeof dossier === "object" && dossier !== null) {
+            Object.keys(dossier).forEach((subKey) => {
+              // Send as dossiers[content] and dossiers[pdf_file]
+              const dossierFieldName = `${fieldName}[${subKey}]`;
+              if (dossier[subKey] instanceof File) {
+                formData.append(dossierFieldName, dossier[subKey]);
+              } else if (
+                dossier[subKey] !== null &&
+                dossier[subKey] !== undefined
+              ) {
+                formData.append(dossierFieldName, String(dossier[subKey]));
+              }
+            });
+          }
+        } else {
+          // Regular array handling for other fields
+          value.forEach((item, index) => {
+            if (typeof item === "object" && item !== null) {
+              Object.keys(item).forEach((subKey) => {
+                processValue(subKey, item[subKey], `${fieldName}[${index}]`);
+              });
+            } else {              
+              formData.append(`${fieldName}[${index}]`, String(item));
+            }
+          });
+        }
+      } else if (typeof value === "object") {
+       
+        Object.keys(value).forEach((subKey) => {
+          processValue(subKey, value[subKey], fieldName);
+        });
+      } else {
+        formData.append(fieldName, String(value));
+      }
+    };
+
+    // Process all fields
+    (Object.keys(data) as (keyof FormSchema)[]).forEach((key) => {
+      processValue(key as string, data[key]);
+    });
+
+    // Ensure required fields are present even if they're missing from data
+    const requiredFields = ["manager_id", "guide_id", "driver_id"];
+    requiredFields.forEach((field) => {
+      if (!formData.has(field)) {
+        formData.append(field, "");
+      }
+    });
+
+    return formData;
+  }
   function hasFiles(data: FormSchema): boolean {
     // Check if there's a dossiers field with a file
     if ("dossiers" in data && data.dossiers) {
@@ -140,11 +236,28 @@ function ProductEditor({ initialData, edit }: Props) {
       if (!Array.isArray(dossiers)) {
         const hasFile = dossiers.pdf_file && dossiers.pdf_file instanceof File;
         return hasFile;
-      }
+      }     
     }
 
     return false;
   }
+
+  useEffect(() => {
+    switch (productType) {
+      case "homestay":
+        setFormSchema(homestaySchema);
+        break;
+      case "package":
+        setFormSchema(packageSchema);
+        break;
+      case "circuit":
+        setFormSchema(circuitSchema);
+        break;
+      case "experience":
+        setFormSchema(experienceSchema);
+        break;
+    }
+  }, [productType]);
 
   useEffect(() => {
     if (hasAnyProperty(errors, tabFieldsMap.general)) {
@@ -168,8 +281,11 @@ function ProductEditor({ initialData, edit }: Props) {
     } else if (hasAnyProperty(errors, tabFieldsMap.faqs)) {
       setActiveTab("faqs");
       return;
-    } else if (hasAnyProperty(errors, tabFieldsMap.departure)) {
-      setActiveTab("departure");
+    } else if (hasAnyProperty(errors, tabFieldsMap.hosts)) {
+      setActiveTab("hosts");
+      return;
+    } else if (hasAnyProperty(errors, tabFieldsMap.highlights)) {
+      setActiveTab("highlights");
       return;
     } else if (hasAnyProperty(errors, tabFieldsMap.files)) {
       setActiveTab("files");
@@ -196,11 +312,22 @@ function ProductEditor({ initialData, edit }: Props) {
             <TabsTrigger value="description">Description</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
             <TabsTrigger value="location">Location</TabsTrigger>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
+            {(productType === "experience" || productType === "circuit") && (
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+            )}
             <TabsTrigger value="faqs">FAQs</TabsTrigger>
-            <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
-            <TabsTrigger value="dossiers">Dossiers</TabsTrigger>
-            <TabsTrigger value="departure">Departure</TabsTrigger>
+            {productType === "homestay" && (
+              <TabsTrigger value="hosts">Hosts</TabsTrigger>
+            )}
+            {(productType === "homestay" || productType === "package") && (
+              <TabsTrigger value="highlights">Highlights</TabsTrigger>
+            )}
+            {productType !== "homestay" && (
+              <TabsTrigger value="itinerary">Itinerary</TabsTrigger>
+            )}
+            {productType !== "homestay" && (
+              <TabsTrigger value="dossiers">Dossiers</TabsTrigger>
+            )}
             <TabsTrigger value="files">Files</TabsTrigger>
             <TabsTrigger value="other">Other</TabsTrigger>
           </TabsList>
@@ -222,14 +349,17 @@ function ProductEditor({ initialData, edit }: Props) {
           <TabsContent value="faqs">
             <FAQSFields />
           </TabsContent>
+          <TabsContent value="hosts">
+            <HostsFields />
+          </TabsContent>
+          <TabsContent value="highlights">
+            <HighlightsFields />
+          </TabsContent>
           <TabsContent value="itinerary">
             <ItineraryFields />
           </TabsContent>
           <TabsContent value="dossiers">
             <DossierFields />
-          </TabsContent>
-          <TabsContent value="departure">
-            <DepartureDatesField />
           </TabsContent>
           <TabsContent value="files">
             <Files />

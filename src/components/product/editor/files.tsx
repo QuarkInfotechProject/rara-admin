@@ -10,17 +10,17 @@ function ProductEditorFiles() {
   const productType = form.watch("type");
   const files = form.watch("files");
 
-  const locationCoverFiles = useFilesSelector({
-    defaultFilesIds: files?.locationCover ? [files.locationCover] : [],
-    callback: (files) => form.setValue("files.locationCover", files[0]),
+  const altitudeChartFiles = useFilesSelector({
+    defaultFilesIds: files?.altitudeChart ? [files.altitudeChart] : [],
+    callback: (files) => form.setValue("files.altitudeChart", files[0]),
   });
   const hostCoverFiles = useFilesSelector({
     defaultFilesIds: files?.hostCover ? [files.hostCover] : [],
     callback: (files) => form.setValue("files.hostCover", files[0]),
   });
-  const howToGetFiles = useFilesSelector({
-    defaultFilesIds: files?.howToGet ? [files.howToGet] : [],
-    callback: (files) => form.setValue("files.howToGet", files[0]),
+  const locationFiles = useFilesSelector({
+    defaultFilesIds: files?.location ? [files.location] : [],
+    callback: (files) => form.setValue("files.location", files[0]),
   });
   const featuredImageFiles = useFilesSelector({
     defaultFilesIds: files?.featuredImage ? [files.featuredImage] : [],
@@ -61,7 +61,7 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Featured Images">
+      <EditorCard title="Featured Caraousel Images">
         <FormField
           control={form.control}
           name="files.featuredImages"
@@ -122,17 +122,17 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Location Cover">
+      <EditorCard title="Altitiude Chart">
         <FormField
           control={form.control}
-          name="files.locationCover"
+          name="files.altitudeChart"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <FilesSelectorInput
-                  onSelect={locationCoverFiles.selectFiles}
-                  selectedFiles={locationCoverFiles.selectedFiles}
-                  onRemove={locationCoverFiles.removeFile}
+                  onSelect={altitudeChartFiles.selectFiles}
+                  selectedFiles={altitudeChartFiles.selectedFiles}
+                  onRemove={altitudeChartFiles.removeFile}
                 />
               </FormControl>
               <FormMessage />
@@ -140,7 +140,7 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      {productType === "homestay" && (
+      {/* {productType === "homestay" && (
         <EditorCard title="Host Cover">
           <FormField
             control={form.control}
@@ -159,18 +159,18 @@ function ProductEditorFiles() {
             )}
           />
         </EditorCard>
-      )}
-      <EditorCard title="How To Get">
+      )} */}
+      <EditorCard title="Location">
         <FormField
           control={form.control}
-          name="files.howToGet"
+          name="files.location"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <FilesSelectorInput
-                  onSelect={howToGetFiles.selectFiles}
-                  selectedFiles={howToGetFiles.selectedFiles}
-                  onRemove={howToGetFiles.removeFile}
+                  onSelect={locationFiles.selectFiles}
+                  selectedFiles={locationFiles.selectedFiles}
+                  onRemove={locationFiles.removeFile}
                 />
               </FormControl>
               <FormMessage />

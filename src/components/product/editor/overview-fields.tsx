@@ -11,7 +11,7 @@ const overviewFields = [
   { key: "trip_grade", label: "Trip Grade" },
   { key: "maximum_altitude", label: "Maximum Altitude" },
   { key: "group_size", label: "Group Size" },
-  { key: "activities", label: "Activities" },
+  { key: "activities", label: "Activities" }, 
   { key: "best_time", label: "Best Time" },
   { key: "starts", label: "Starts" },
 ] as const;

@@ -103,7 +103,7 @@ function GeneralFields() {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="short_code"
           render={({ field }) => (
@@ -115,7 +115,7 @@ function GeneralFields() {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         {/* <FormField
           control={form.control}
           name="youtube_link"
@@ -134,7 +134,7 @@ function GeneralFields() {
           name="night"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Night</FormLabel>
+              <FormLabel>Days</FormLabel>
               <FormControl>
                 <Input type="number" placeholder="1" {...field} />
               </FormControl>

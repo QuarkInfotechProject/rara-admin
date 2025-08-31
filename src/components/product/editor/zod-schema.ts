@@ -95,9 +95,16 @@ const hostsSchema = z.object({
   description: z.string(),
 });
 
+// Updated itinerary schema with additional fields
 const itinerarySchema = z.object({
   time_window: z.string(),
   activity: z.string(),
+  duration: z.string().optional().default(""),
+  location: z.string().optional().default(""),
+  maximum_altitude: z.string().optional().default(""),
+  activities: z.string().optional().default(""),
+  accommodation: z.string().optional().default(""),
+  meals: z.string().optional().default(""),
   order: z.coerce.number().transform((v) => v ?? 0),
 });
 
@@ -139,7 +146,7 @@ const baseSchema = z.object({
       "Please enter a valid shortcode containing only letters, numbers, and hyphens."
     ),
   tagline: nullableStringValue,
-  short_description: nullableStringValue,
+  intro: nullableStringValue,
   description: nullableStringValue,
   prices: pricingSchema,
   departures: departureSchema,
@@ -185,8 +192,8 @@ const filesBaseSchema = z.object({
   featuredImages: nullableFilesArray,
   galleryImages: nullableFilesArray,
   faqImages: nullableFilesArray,
-  locationCover: singleFile,
-  howToGet: singleFile,
+  altitudeChart: singleFile,
+  location: singleFile,
 });
 
 // Create unified product schema that includes all possible fields
@@ -211,6 +218,7 @@ const productSchema = baseSchema.extend({
   // Updated overview field to use object schema instead of array
   overview: overviewObjectSchema,
 
+  // Updated itinerary with enhanced fields
   itinerary: z.array(itinerarySchema).optional().default([]),
   dossiers: z.array(dossierSchema).optional().default([]),
 
@@ -234,7 +242,7 @@ const productSchema = baseSchema.extend({
     .optional(),
 });
 
-// Legacy schemas - updated to use new overview format
+// Legacy schemas - updated to use new overview format and enhanced itinerary
 const homestaySchema = baseSchema.extend({
   manager_id: z.number().nullable(),
   region: nullableStringValue,
@@ -251,7 +259,7 @@ const homestaySchema = baseSchema.extend({
 
 const experienceSchema = baseSchema.extend({
   overview: overviewObjectSchema, // Updated to use object schema
-  itinerary: z.array(itinerarySchema),
+  itinerary: z.array(itinerarySchema), // Updated with enhanced fields
   dossiers: z.array(dossierSchema),
   what_to_bring: z.array(z.number()),
   related_homestay: nullableStringArray,
@@ -264,7 +272,7 @@ const circuitSchema = baseSchema.extend({
   longitude: longitude.transform((v) => v ?? 0),
   location: z.string(),
   overview: overviewObjectSchema, // Updated to use object schema
-  itinerary: z.array(itinerarySchema),
+  itinerary: z.array(itinerarySchema), // Updated with enhanced fields
   dossiers: z.array(dossierSchema),
   excluded: z.array(z.number()),
   what_to_bring: z.array(z.number()),
@@ -279,7 +287,7 @@ const packageSchema = baseSchema.extend({
   night: z.coerce.number(),
   highlights: z.array(highlightsSchema),
   overview: overviewObjectSchema, // Updated to use object schema
-  itinerary: z.array(itinerarySchema),
+  itinerary: z.array(itinerarySchema), // Updated with enhanced fields
   dossiers: z.array(dossierSchema),
   excluded: z.array(z.number()),
   what_to_bring: z.array(z.number()),
@@ -297,6 +305,9 @@ type Package = z.infer<typeof packageSchema>;
 // Overview type for the new object structure
 type OverviewObject = z.infer<typeof overviewObjectSchema>;
 
+// Updated Itinerary type with new fields
+type Itinerary = z.infer<typeof itinerarySchema>;
+
 // Export the schemas
 export {
   baseSchema,
@@ -307,10 +318,19 @@ export {
   packageSchema,
   departureSchema,
   overviewObjectSchema,
+  itinerarySchema,
 };
 
 // Export the types
-export type { Product, Homestay, Experience, Circuit, Package, OverviewObject };
+export type {
+  Product,
+  Homestay,
+  Experience,
+  Circuit,
+  Package,
+  OverviewObject,
+  Itinerary,
+};
 
 // Export the Departure type
 export type Departure = z.infer<typeof departureSchema>[0];

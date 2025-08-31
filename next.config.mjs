@@ -4,6 +4,7 @@ const nextConfig = {
   output: "standalone",
   images: {
     remotePatterns: [{ hostname: "api.communityhomestay.com" }],
+     remotePatterns: [{ hostname: "localhost" }],
   },
 };
 

@@ -1,6 +1,11 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import useFilesSelector from "@/lib/hooks/use-files-selector";
 import FilesSelectorInput from "../../media/files-selector-input";
 import { FormSchema } from "./product-editor";
@@ -13,11 +18,6 @@ function ProductEditorFiles() {
   const altitudeChartFiles = useFilesSelector({
     defaultFilesIds: files?.altitudeChart ? [files.altitudeChart] : [],
     callback: (files) => form.setValue("files.altitudeChart", files[0]),
-  });
-  const hostCoverFiles = useFilesSelector({
-    // @ts-expect-error
-    defaultFilesIds: files?.hostCover ? [files.hostCover] : [],
-    callback: (files) => form.setValue("files.hostCover", files[0]),
   });
   const locationFiles = useFilesSelector({
     defaultFilesIds: files?.location ? [files.location] : [],
@@ -37,7 +37,11 @@ function ProductEditorFiles() {
     isMulti: true,
     callback: (files) => form.setValue("files.galleryImages", files),
   });
-
+  const faqImagesFiles = useFilesSelector({
+    defaultFilesIds: files?.faqImages ? files.faqImages : [],
+    isMulti: true,
+    callback: (files) => form.setValue("files.faqImages", files),
+  });
   return (
     <div className="editor-grid [--files-selector-img-width:240px]">
       <EditorCard title="Featured Image">

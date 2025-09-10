@@ -21,8 +21,9 @@ const tabFieldsMap = {
     "files",
     "featuredImages",
     "galleryImages",
-    "locationCover",
-    "howToGet",
+    "faqImages",
+    "altitudeChart",
+    "location",
   ],
   other: [
     "amenity",

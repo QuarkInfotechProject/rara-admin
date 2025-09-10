@@ -244,14 +244,14 @@ function DossierItem(props: DossierItemProps) {
         )}
       </div>
 
-      <div>
+      {/* <div>
         <Label className="text-sm font-medium mb-2 block">Description</Label>
         <CkEditor
           id={`dossier-${props.index}`}
           initialData={props.content}
           onChange={(content) => props.changeInput({ content })}
         />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -8,10 +8,16 @@ import { Label } from "@/components/ui/label";
 import { IconX } from "@tabler/icons-react";
 import { FormSchema } from "./product-editor";
 
-const defaultOverviews = {
-  name: "",
-  description: "",
-};
+const overviewFields = [
+  { key: "duration", label: "Duration" },
+  { key: "location", label: "Location" },
+  { key: "trip_grade", label: "Trip Grade" },
+  { key: "maximum_altitude", label: "Maximum Altitude" },
+  { key: "group_size", label: "Group Size" },
+  { key: "activities", label: "Activities" }, 
+  { key: "best_time", label: "Best Time" },
+  { key: "starts", label: "Starts" },
+] as const;
 
 function OverviewFields() {
   const form = useFormContext<FormSchema>();

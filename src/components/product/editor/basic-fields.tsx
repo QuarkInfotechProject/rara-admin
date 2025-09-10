@@ -1,8 +1,20 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { FormSchema } from "./product-editor";
 
 function BasicFields() {
@@ -18,7 +30,10 @@ function BasicFields() {
           <FormItem>
             <FormLabel>Cornerstone</FormLabel>
             <FormControl>
-              <Select value={field.value.toString()} onValueChange={field.onChange}>
+              <Select
+                value={field.value.toString()}
+                onValueChange={field.onChange}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />
@@ -40,7 +55,10 @@ function BasicFields() {
         render={({ field }) => (
           <FormItem>
             <FormLabel>Is Occupied</FormLabel>
-            <Select value={field.value.toString()} onValueChange={field.onChange}>
+            <Select
+              value={field.value.toString()}
+              onValueChange={field.onChange}
+            >
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder="Select" />
@@ -77,7 +95,10 @@ function BasicFields() {
           <FormItem>
             <FormLabel>Display on Homepage</FormLabel>
             <FormControl>
-              <Select value={field.value.toString()} onValueChange={field.onChange}>
+              <Select
+                value={field.value.toString()}
+                onValueChange={field.onChange}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select" />

@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { ReviewDetail } from "@/types/reviews.types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ReviewEditorBasicFields from "./review-editor-basic-fields";
 import ReviewEditorOtherFields from "./review-editor-other-fields";
 import ReviewEditorRatings from "./review-editor-ratings";
 import ReviewEditorReply from "./review-editor-reply";
@@ -25,7 +24,6 @@ function ReviewEditor({ initialData, edit }: Props) {
     <Form {...form}>
       <form className="editor-grid-2">
         <div>
-          <ReviewEditorBasicFields />
           <ReviewEditorOtherFields />
           <ReviewEditorReply />
         </div>

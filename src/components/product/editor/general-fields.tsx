@@ -51,7 +51,7 @@ function GeneralFields() {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="short_code"
           render={({ field }) => (
@@ -63,8 +63,8 @@ function GeneralFields() {
               <FormMessage />
             </FormItem>
           )}
-        />
-        <FormField
+        /> */}
+        {/* <FormField
           control={form.control}
           name="youtube_link"
           render={({ field }) => (
@@ -72,6 +72,19 @@ function GeneralFields() {
               <FormLabel>YouTube Link</FormLabel>
               <FormControl>
                 <Input placeholder="https://youtube.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+        <FormField
+          control={form.control}
+          name="night"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Days</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="1" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

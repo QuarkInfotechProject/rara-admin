@@ -8,23 +8,23 @@ const CkEditor = dynamic(() => import("@/components/ck-editor"), { ssr: false })
 function DescriptionFields() {
   const form = useFormContext<FormSchema>();
   const description = form.watch("description");
-  const shortDescription = form.watch("short_description");
+  const shortDescription = form.watch("intro");
   const impact = form.watch("impact");
 
   return (
     <div className="editor-grid">
-      <EditorCard title="Short Description">
+      <EditorCard title="intro">
         <FormField
           control={form.control}
-          name="short_description"
+          name="intro"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <CkEditor
-                  id="short-description"
+                  id="intro"
                   initialData={shortDescription}
                   onChange={(content) => {
-                    form.setValue("short_description", content);
+                    form.setValue("intro", content);
                   }}
                 />
               </FormControl>

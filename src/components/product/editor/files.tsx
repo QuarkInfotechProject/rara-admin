@@ -1,6 +1,11 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import useFilesSelector from "@/lib/hooks/use-files-selector";
 import FilesSelectorInput from "../../media/files-selector-input";
 import { FormSchema } from "./product-editor";
@@ -10,18 +15,13 @@ function ProductEditorFiles() {
   const productType = form.watch("type");
   const files = form.watch("files");
 
-  const locationCoverFiles = useFilesSelector({
-    defaultFilesIds: files?.locationCover ? [files.locationCover] : [],
-    callback: (files) => form.setValue("files.locationCover", files[0]),
+  const altitudeChartFiles = useFilesSelector({
+    defaultFilesIds: files?.altitudeChart ? [files.altitudeChart] : [],
+    callback: (files) => form.setValue("files.altitudeChart", files[0]),
   });
-  const hostCoverFiles = useFilesSelector({
-    // @ts-expect-error
-    defaultFilesIds: files?.hostCover ? [files.hostCover] : [],
-    callback: (files) => form.setValue("files.hostCover", files[0]),
-  });
-  const howToGetFiles = useFilesSelector({
-    defaultFilesIds: files?.howToGet ? [files.howToGet] : [],
-    callback: (files) => form.setValue("files.howToGet", files[0]),
+  const locationFiles = useFilesSelector({
+    defaultFilesIds: files?.location ? [files.location] : [],
+    callback: (files) => form.setValue("files.location", files[0]),
   });
   const featuredImageFiles = useFilesSelector({
     defaultFilesIds: files?.featuredImage ? [files.featuredImage] : [],
@@ -37,7 +37,11 @@ function ProductEditorFiles() {
     isMulti: true,
     callback: (files) => form.setValue("files.galleryImages", files),
   });
-
+  const faqImagesFiles = useFilesSelector({
+    defaultFilesIds: files?.faqImages ? files.faqImages : [],
+    isMulti: true,
+    callback: (files) => form.setValue("files.faqImages", files),
+  });
   return (
     <div className="editor-grid [--files-selector-img-width:240px]">
       <EditorCard title="Featured Image">
@@ -58,7 +62,7 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Featured Images">
+      <EditorCard title="Featured Caraousel Images">
         <FormField
           control={form.control}
           name="files.featuredImages"
@@ -96,17 +100,22 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Location Cover">
+
+      <EditorCard title="FAQ Images">
+        <p className="text-sm text-muted-foreground">
+          Select up to 4 images for FAQ section
+        </p>
         <FormField
           control={form.control}
-          name="files.locationCover"
+          name="files.faqImages"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <FilesSelectorInput
-                  onSelect={locationCoverFiles.selectFiles}
-                  selectedFiles={locationCoverFiles.selectedFiles}
-                  onRemove={locationCoverFiles.removeFile}
+                  onSelect={faqImagesFiles.selectFiles}
+                  selectedFiles={faqImagesFiles.selectedFiles}
+                  onRemove={faqImagesFiles.removeFile}
+                  isMulti
                 />
               </FormControl>
               <FormMessage />
@@ -114,7 +123,25 @@ function ProductEditorFiles() {
           )}
         />
       </EditorCard>
-      {productType === "homestay" && (
+      <EditorCard title="Altitiude Chart">
+        <FormField
+          control={form.control}
+          name="files.altitudeChart"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <FilesSelectorInput
+                  onSelect={altitudeChartFiles.selectFiles}
+                  selectedFiles={altitudeChartFiles.selectedFiles}
+                  onRemove={altitudeChartFiles.removeFile}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </EditorCard>
+      {/* {productType === "homestay" && (
         <EditorCard title="Host Cover">
           <FormField
             control={form.control}
@@ -133,18 +160,18 @@ function ProductEditorFiles() {
             )}
           />
         </EditorCard>
-      )}
-      <EditorCard title="How To Get">
+      )} */}
+      <EditorCard title="Location">
         <FormField
           control={form.control}
-          name="files.howToGet"
+          name="files.location"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <FilesSelectorInput
-                  onSelect={howToGetFiles.selectFiles}
-                  selectedFiles={howToGetFiles.selectedFiles}
-                  onRemove={howToGetFiles.removeFile}
+                  onSelect={locationFiles.selectFiles}
+                  selectedFiles={locationFiles.selectedFiles}
+                  onRemove={locationFiles.removeFile}
                 />
               </FormControl>
               <FormMessage />

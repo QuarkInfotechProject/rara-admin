@@ -28,7 +28,10 @@ function FAQSFields() {
     form.setValue("faqs", filteredFaqs);
   }
 
-  function changeInput(index: number, data: { question?: string; answer?: string; order?: number }) {
+  function changeInput(
+    index: number,
+    data: { question?: string; answer?: string; order?: number }
+  ) {
     let faq = faqs[index];
     if (faq) {
       faq = {
@@ -42,7 +45,12 @@ function FAQSFields() {
 
   return (
     <div className="editor-grid">
-      <Button type="button" size="sm" className="gap-1 ml-auto w-fit" onClick={addFAQ}>
+      <Button
+        type="button"
+        size="sm"
+        className="gap-1 ml-auto w-fit"
+        onClick={addFAQ}
+      >
         <PlusCircle size={16} />
         <span className="sr-only sm:not-sr-only">Add</span>
       </Button>
@@ -53,7 +61,13 @@ function FAQSFields() {
           render={({ field }) => (
             <FormItem>
               {faqs.map((faq, index) => (
-                <FAQ key={index} index={index} {...faq} changeInput={changeInput} removeFAQ={removeFAQ} />
+                <FAQ
+                  key={index}
+                  index={index}
+                  {...faq}
+                  changeInput={changeInput}
+                  removeFAQ={removeFAQ}
+                />
               ))}
               <FormMessage />
             </FormItem>

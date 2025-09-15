@@ -131,7 +131,7 @@ function Itinerary(props: ItineraryProps) {
                 duration: e.target.value,
               })
             }
-            placeholder="Enter duration"
+            placeholder="e.g., Full Day, Half day, 6 hours"
           />
         </div>
 
@@ -144,7 +144,7 @@ function Itinerary(props: ItineraryProps) {
                 location: e.target.value,
               })
             }
-            placeholder="Enter location"
+            placeholder="e.g., Kathmandu"
           />
         </div>
 
@@ -157,7 +157,7 @@ function Itinerary(props: ItineraryProps) {
                 max_altitude: e.target.value,
               })
             }
-            placeholder="Enter max altitude"
+            placeholder="e.g., 822"
           />
         </div>
 
@@ -170,7 +170,7 @@ function Itinerary(props: ItineraryProps) {
                 activities: e.target.value,
               })
             }
-            placeholder="Enter activities"
+            placeholder="e.g., City tour, Trek briefing, Gear check"
           />
         </div>
 
@@ -183,7 +183,7 @@ function Itinerary(props: ItineraryProps) {
                 accommodation: e.target.value,
               })
             }
-            placeholder="Enter accommodation"
+            placeholder="e.g., Hotel, Guest House"
           />
         </div>
 
@@ -196,7 +196,7 @@ function Itinerary(props: ItineraryProps) {
                 meal: e.target.value,
               })
             }
-            placeholder="Enter meals"
+            placeholder="e.g., Breakfast, Dinner"
           />
         </div>
       </div>

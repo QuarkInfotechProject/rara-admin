@@ -1,9 +1,16 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
-import { FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { FormSchema } from "./product-editor";
 import dynamic from "next/dynamic";
-const CkEditor = dynamic(() => import("@/components/ck-editor"), { ssr: false });
+const CkEditor = dynamic(() => import("@/components/ck-editor"), {
+  ssr: false,
+});
 
 function DescriptionFields() {
   const form = useFormContext<FormSchema>();
@@ -13,7 +20,11 @@ function DescriptionFields() {
 
   return (
     <div className="editor-grid">
-      <EditorCard title="intro">
+      <EditorCard title="Intro">
+        <p className="text-sm text-muted-foreground mb-4">
+          Write a engaging introduction (1-3 Sentence) that captures the essence
+          of the experience and entices readers to learn more.
+        </p>
         <FormField
           control={form.control}
           name="short_description"
@@ -33,7 +44,14 @@ function DescriptionFields() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Description">
+
+      <EditorCard title="Highlights">
+        <p className="text-sm text-muted-foreground mb-4">
+          Write the major highlights of this experience in bullet points.
+          Include key features, unique aspects, and what makes it special.
+          <br />
+        </p>
+
         <FormField
           control={form.control}
           name="description"
@@ -53,7 +71,13 @@ function DescriptionFields() {
           )}
         />
       </EditorCard>
-      <EditorCard title="Impact">
+
+      <EditorCard title="Message">
+        <p className="text-sm text-muted-foreground mb-4">
+          Please provide any important information or instructions you would
+          like the user to see regarding this enquiry.
+        </p>
+
         <FormField
           control={form.control}
           name="impact"

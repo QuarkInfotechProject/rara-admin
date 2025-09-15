@@ -6,14 +6,34 @@ import { Label } from "@/components/ui/label";
 import { FormSchema } from "./product-editor";
 
 const overviewFields = [
-  { key: "duration", label: "Duration" },
-  { key: "overview_location", label: "Location" },
-  { key: "trip_grade", label: "Trip Grade" },
-  { key: "max_altitude", label: "Maximum Altitude" },
-  { key: "group_size", label: "Group Size" },
-  { key: "activities", label: "Activities" },
-  { key: "best_time", label: "Best Time" },
-  { key: "starts", label: "Starts" },
+  { key: "duration", label: "Duration", placeholder: "e.g., 7 " },
+  {
+    key: "overview_location",
+    label: "Location",
+    placeholder: "e.g., Kathmandu, Nepal",
+  },
+  {
+    key: "trip_grade",
+    label: "Trip Grade",
+    placeholder: "e.g., Moderate, Challenging",
+  },
+  {
+    key: "max_altitude",
+    label: "Maximum Altitude",
+    placeholder: "e.g., 5545",
+  },
+  { key: "group_size", label: "Group Size", placeholder: "e.g., 12 " },
+  {
+    key: "activities",
+    label: "Activities",
+    placeholder: "e.g., Trekking, Climbing",
+  },
+  {
+    key: "best_time",
+    label: "Best Time",
+    placeholder: "e.g., March-May, September-November",
+  },
+  { key: "starts", label: "Starts", placeholder: "e.g., Kathmandu" },
 ] as const;
 
 function OverviewFields() {
@@ -36,13 +56,13 @@ function OverviewFields() {
           render={() => (
             <FormItem>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {overviewFields.map(({ key, label }) => (
+                {overviewFields.map(({ key, label, placeholder }) => (
                   <div key={key} className="grid gap-2">
                     <Label>{label}</Label>
                     <Input
                       value={overview?.[key] ?? ""}
                       onChange={(e) => changeInput(key, e.target.value)}
-                      placeholder={`Enter ${label}`}
+                      placeholder={placeholder}
                     />
                   </div>
                 ))}

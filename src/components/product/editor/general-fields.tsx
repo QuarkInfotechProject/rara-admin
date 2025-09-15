@@ -54,7 +54,7 @@ function GeneralFields() {
               <FormLabel>Category Description</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Lets make your best Trek memory with ultimate luxury experience"
+                  placeholder="Brief description of the category, e.g., Luxury trekking experience in the Himalayas"
                   {...field}
                 />
               </FormControl>
@@ -69,7 +69,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Nepal Product" {...field} />
+                <Input placeholder="e.g., Everest Base Camp Trek" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,7 +82,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="nepal-product" {...field} />
+                <Input placeholder="everest-base-camp-trek" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -95,7 +95,10 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Tagline</FormLabel>
               <FormControl>
-                <Input placeholder="The best product in nepal" {...field} />
+                <Input
+                  placeholder="Journey to the roof of the world"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -108,7 +111,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Short Code</FormLabel>
               <FormControl>
-                <Input placeholder="nepalproduct" {...field} />
+                <Input placeholder="EBC2024" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -121,7 +124,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>YouTube Link</FormLabel>
               <FormControl>
-                <Input placeholder="https://youtube.com" {...field} />
+                <Input placeholder="https://youtube.com/watch?v=example" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -134,7 +137,7 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Days</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="1" {...field} />
+                <Input type="number" placeholder="14" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

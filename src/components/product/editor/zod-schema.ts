@@ -56,11 +56,11 @@ const departureSchema = z
 // Updated overview schema to match the component structure
 const overviewObjectSchema = z
   .object({
-    duration: z.string().optional().default(""),
+    duration: z.number().optional().default(0),
     overview_location: z.string().optional().default(""),
     trip_grade: z.string().optional().default(""),
-    max_altitude: z.string().optional().default(""),
-    group_size: z.string().optional().default(""),
+    max_altitude: z.number().optional().default(0),
+    group_size: z.number().optional().default(0),
     activities: z.string().optional().default(""),
     best_time: z.string().optional().default(""),
     starts: z.string().optional().default(""),

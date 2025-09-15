@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ReactQueryContext from "@/lib/context/react-query-context";
 
 export const metadata: Metadata = {
-  title: "CHN Dashboard",
+  title: "RARA Trek and Travels",
   robots: {
     index: false,
   },

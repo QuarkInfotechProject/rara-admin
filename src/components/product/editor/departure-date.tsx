@@ -12,7 +12,7 @@ import { Departure } from "./zod-schema";
 const defaultDeparture: Departure = {
   departure_from: "",
   departure_to: "",
-  price_per_person: "",
+  departure_per_price: "",
 };
 
 function DepartureDatesField() {
@@ -74,7 +74,7 @@ interface DepartureProps {
   index: number;
   departure_from: string;
   departure_to: string;
-  price_per_person: string;
+  departure_per_price: string;
   changeInput: (index: number, data: Partial<Departure>) => void;
   removeDeparture: (index: number) => void;
 }
@@ -85,7 +85,7 @@ function DepartureDate(props: DepartureProps) {
     // Allow empty string or valid positive numbers
     if (value === "" || (Number(value) >= 0 && !isNaN(Number(value)))) {
       props.changeInput(props.index, {
-        price_per_person: value,
+        departure_per_price: value,
       });
     }
   };
@@ -127,7 +127,7 @@ function DepartureDate(props: DepartureProps) {
           type="number"
           step="0.01"
           min="0"
-          value={props.price_per_person}
+          value={props.departure_per_price}
           onChange={handlePriceChange}
           placeholder="Enter price"
         />

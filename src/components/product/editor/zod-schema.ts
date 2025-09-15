@@ -48,7 +48,7 @@ const departureSchema = z
     z.object({
       departure_from: z.string({ message: "Please select a departure date" }),
       departure_to: z.string({ message: "Please select a return date" }),
-      price_per_person: z.string().transform((v) => (v === "" ? "0" : v)),
+      departure_per_price: z.string().transform((v) => (v === "" ? "0" : v)),
     })
   )
   .default([]);
@@ -57,9 +57,9 @@ const departureSchema = z
 const overviewObjectSchema = z
   .object({
     duration: z.string().optional().default(""),
-    location: z.string().optional().default(""),
+    overview_location: z.string().optional().default(""),
     trip_grade: z.string().optional().default(""),
-    maximum_altitude: z.string().optional().default(""),
+    max_altitude: z.string().optional().default(""),
     group_size: z.string().optional().default(""),
     activities: z.string().optional().default(""),
     best_time: z.string().optional().default(""),
@@ -101,10 +101,10 @@ const itinerarySchema = z.object({
   activity: z.string(),
   duration: z.string().optional().default(""),
   location: z.string().optional().default(""),
-  maximum_altitude: z.string().optional().default(""),
+  max_altitude: z.string().optional().default(""),
   activities: z.string().optional().default(""),
   accommodation: z.string().optional().default(""),
-  meals: z.string().optional().default(""),
+  meal: z.string().optional().default(""),
   order: z.coerce.number().transform((v) => v ?? 0),
 });
 
@@ -133,11 +133,11 @@ const baseSchema = z.object({
       (v) => /^[a-zA-Z0-9-]+$/.test(v),
       "Please enter a valid URL slug containing only letters, numbers, and hyphens."
     ),
-  category: z.enum(["trek", "tour", "activities", "safari"], {
+  type: z.enum(["trek", "tour", "activities", "safari"], {
     message: "Please select a valid category",
   }),
-  category_desc: nullableStringValue,
-  type: z.string(),
+  category_details: nullableStringValue,
+  // type: z.string(),
   short_code: z
     .string()
     .transform((v) => v.toLowerCase())
@@ -146,8 +146,9 @@ const baseSchema = z.object({
       "Please enter a valid shortcode containing only letters, numbers, and hyphens."
     ),
   tagline: nullableStringValue,
-  intro: nullableStringValue,
+  short_description: nullableStringValue,
   description: nullableStringValue,
+  impact: nullableStringValue,
   prices: pricingSchema,
   departures: departureSchema,
   display_order: nullableStringValue,
@@ -170,7 +171,6 @@ const baseSchema = z.object({
   how_to_get: nullableStringValue,
   cornerstone: z.coerce.number({ message: "Select a valid value" }),
   is_occupied: z.coerce.number({ message: "Select a valid value" }),
-  impact: nullableStringValue,
   faqs: z.array(
     z.object({
       question: z.string(),
@@ -193,13 +193,13 @@ const filesBaseSchema = z.object({
   galleryImages: nullableFilesArray,
   faqImages: nullableFilesArray,
   altitudeChart: singleFile,
-  location: singleFile,
+  locationCover: singleFile,
 });
 
 // Create unified product schema that includes all possible fields
 const productSchema = baseSchema.extend({
   // Manager ID (from homestay)
-  manager_id: z.number().nullable().optional(),
+  //  manager_id: z.number().nullable().optional(),
 
   // Region and max_occupant (from homestay)
   region: nullableStringValue,
@@ -244,7 +244,7 @@ const productSchema = baseSchema.extend({
 
 // Legacy schemas - updated to use new overview format and enhanced itinerary
 const homestaySchema = baseSchema.extend({
-  manager_id: z.number().nullable(),
+  // manager_id: z.number().nullable(),
   region: nullableStringValue,
   max_occupant: z.coerce.number({ message: "Enter a valid number" }).min(0),
   hosts: z.array(hostsSchema),

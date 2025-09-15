@@ -20,8 +20,8 @@ function ProductEditorFiles() {
     callback: (files) => form.setValue("files.altitudeChart", files[0]),
   });
   const locationFiles = useFilesSelector({
-    defaultFilesIds: files?.location ? [files.location] : [],
-    callback: (files) => form.setValue("files.location", files[0]),
+    defaultFilesIds: files?.locationCover ? [files.locationCover] : [],
+    callback: (files) => form.setValue("files.locationCover", files[0]),
   });
   const featuredImageFiles = useFilesSelector({
     defaultFilesIds: files?.featuredImage ? [files.featuredImage] : [],
@@ -161,10 +161,10 @@ function ProductEditorFiles() {
           />
         </EditorCard>
       )} */}
-      <EditorCard title="Location">
+      <EditorCard title="locationCover">
         <FormField
           control={form.control}
-          name="files.location"
+          name="files.locationCover"
           render={({ field }) => (
             <FormItem>
               <FormControl>

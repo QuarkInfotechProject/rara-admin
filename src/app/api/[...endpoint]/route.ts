@@ -1,10 +1,85 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { ApiResponse } from "@/types/index.types";
 
 interface Params {
   endpoint: string[];
+}
+
+// Create axios instance with better defaults
+const apiClient = axios.create({
+  timeout: 30000, // 30 seconds timeout
+  headers: {
+    Connection: "keep-alive",
+    "Keep-Alive": "timeout=5, max=1000",
+  },
+  // Retry configuration
+  maxRedirects: 3,
+});
+
+// Add retry interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error.config;
+
+    // Don't retry if we've already retried or if it's not a network error
+    if (!config || config.__isRetryRequest || !isRetryableError(error)) {
+      return Promise.reject(error);
+    }
+
+    // Mark as retry attempt
+    config.__isRetryRequest = true;
+
+    // Wait before retry (exponential backoff)
+    const retryCount = config.__retryCount || 0;
+    const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s...
+
+    if (retryCount < 3) {
+      config.__retryCount = retryCount + 1;
+      console.log(
+        `Retrying request (attempt ${config.__retryCount}/3) after ${delay}ms`
+      );
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return apiClient.request(config);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Helper function to determine if error is retryable
+function isRetryableError(error: AxiosError): boolean {
+  if (!error.code) return false;
+
+  const retryableCodes = [
+    "ECONNRESET",
+    "ECONNREFUSED",
+    "ENOTFOUND",
+    "ECONNABORTED",
+    "ETIMEDOUT",
+    "ENETUNREACH",
+  ];
+
+  return retryableCodes.includes(error.code);
+}
+
+// Helper function to create axios config
+async function createAxiosConfig(
+  token: string | undefined,
+  searchParams: any
+): Promise<AxiosRequestConfig> {
+  return {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    params: searchParams,
+    timeout: 30000, // 30 second timeout per request
+    validateStatus: (status) => status < 500, // Don't throw on 4xx errors
+  };
 }
 
 export async function GET(
@@ -16,20 +91,45 @@ export async function GET(
   const token = cookieStore.get("admin-token")?.value;
   const searchParams = getSearchParamsAsObject(request.nextUrl.searchParams);
 
-  try {
-    const { data } = await axios.get<ApiResponse<any>>(
-      `${process.env.BASE_URL}/${endpoint.join("/")}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        params: searchParams,
-      }
+  if (!process.env.BASE_URL) {
+    console.error("❌ BASE_URL environment variable is not set!");
+    return NextResponse.json(
+      { error: "Server configuration error" },
+      { status: 500 }
     );
+  }
+
+  const url = `${process.env.BASE_URL}/${endpoint.join("/")}`;
+  console.log("🌐 GET request to:", url);
+
+  try {
+    const config = await createAxiosConfig(token, searchParams);
+    const { data } = await apiClient.get<ApiResponse<any>>(url, config);
+
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("GET Error:", error);
+    console.error("GET Error:", {
+      message: error.message,
+      code: error.code,
+      url,
+      status: error.response?.status,
+    });
+
+    // Handle specific error cases
+    if (error.code === "ECONNRESET" || error.code === "ECONNABORTED") {
+      return NextResponse.json(
+        { error: "Connection to API server failed. Please try again." },
+        { status: 503 } // Service Unavailable
+      );
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      return NextResponse.json(
+        { error: "Request timeout. The API server took too long to respond." },
+        { status: 504 } // Gateway Timeout
+      );
+    }
+
     const axiosError: AxiosError = error;
     return NextResponse.json(
       axiosError.response?.data || { error: "Internal server error" },
@@ -50,6 +150,14 @@ export async function POST(
     const token = cookieStore.get("admin-token")?.value;
     const searchParams = getSearchParamsAsObject(request.nextUrl.searchParams);
 
+    if (!process.env.BASE_URL) {
+      console.error("❌ BASE_URL environment variable is not set!");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
     // Check if the request contains FormData (for file uploads)
     const contentType = request.headers.get("content-type");
     let payload;
@@ -67,18 +175,38 @@ export async function POST(
       headers["Content-Type"] = "application/json";
     }
 
-    const { data } = await axios.post(
-      `${process.env.BASE_URL}/${endpoint.join("/")}`,
-      payload,
-      {
-        headers,
-        params: searchParams,
-      }
-    );
+    const url = `${process.env.BASE_URL}/${endpoint.join("/")}`;
+    console.log("🌐 POST request to:", url);
+
+    const { data } = await apiClient.post(url, payload, {
+      headers,
+      params: searchParams,
+      timeout: 60000, // 60 seconds for POST requests (might include file uploads)
+    });
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("POST Error:", error);
+    console.error("POST Error:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+    });
+
+    // Handle specific error cases
+    if (error.code === "ECONNRESET" || error.code === "ECONNABORTED") {
+      return NextResponse.json(
+        { error: "Connection to API server failed. Please try again." },
+        { status: 503 }
+      );
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      return NextResponse.json(
+        { error: "Request timeout. The operation took too long to complete." },
+        { status: 504 }
+      );
+    }
+
     const axiosError: AxiosError = error;
     return NextResponse.json(
       axiosError.response?.data || { error: "Internal server error" },
@@ -98,6 +226,14 @@ export async function PUT(
     const cookieStore = await cookies();
     const token = cookieStore.get("admin-token")?.value;
     const searchParams = getSearchParamsAsObject(request.nextUrl.searchParams);
+
+    if (!process.env.BASE_URL) {
+      console.error("❌ BASE_URL environment variable is not set!");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
 
     // Special handling for routes that don't support PUT - redirect to POST
     const endpointPath = endpoint.join("/");
@@ -123,17 +259,23 @@ export async function PUT(
       headers["Content-Type"] = "application/json";
     }
 
-    const { data } = await axios.put(
-      `${process.env.BASE_URL}/${endpoint.join("/")}`,
-      payload,
-      {
-        headers,
-        params: searchParams,
-      }
-    );
+    const url = `${process.env.BASE_URL}/${endpoint.join("/")}`;
+    console.log("🌐 PUT request to:", url);
+
+    const { data } = await apiClient.put(url, payload, {
+      headers,
+      params: searchParams,
+      timeout: 60000, // 60 seconds for PUT requests
+    });
+
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("PUT Error:", error);
+    console.error("PUT Error:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+    });
+
     const axiosError: AxiosError = error;
 
     // If PUT is not supported, try POST as fallback
@@ -161,6 +303,21 @@ export async function PUT(
       }
     }
 
+    // Handle connection errors
+    if (error.code === "ECONNRESET" || error.code === "ECONNABORTED") {
+      return NextResponse.json(
+        { error: "Connection to API server failed. Please try again." },
+        { status: 503 }
+      );
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      return NextResponse.json(
+        { error: "Request timeout. The operation took too long to complete." },
+        { status: 504 }
+      );
+    }
+
     return NextResponse.json(
       axiosError.response?.data || { error: "Internal server error" },
       {
@@ -180,19 +337,49 @@ export async function DELETE(
     const token = cookieStore.get("admin-token")?.value;
     const searchParams = getSearchParamsAsObject(request.nextUrl.searchParams);
 
-    const { data } = await axios.delete(
-      `${process.env.BASE_URL}/${endpoint.join("/")}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        params: searchParams,
-      }
-    );
+    if (!process.env.BASE_URL) {
+      console.error("❌ BASE_URL environment variable is not set!");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    const url = `${process.env.BASE_URL}/${endpoint.join("/")}`;
+    console.log("🌐 DELETE request to:", url);
+
+    const { data } = await apiClient.delete(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      params: searchParams,
+      timeout: 30000, // 30 seconds for DELETE requests
+    });
+
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("DELETE Error:", error);
+    console.error("DELETE Error:", {
+      message: error.message,
+      code: error.code,
+      status: error.response?.status,
+    });
+
+    // Handle connection errors
+    if (error.code === "ECONNRESET" || error.code === "ECONNABORTED") {
+      return NextResponse.json(
+        { error: "Connection to API server failed. Please try again." },
+        { status: 503 }
+      );
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      return NextResponse.json(
+        { error: "Request timeout. The operation took too long to complete." },
+        { status: 504 }
+      );
+    }
+
     const axiosError: AxiosError = error;
     return NextResponse.json(
       axiosError.response?.data || { error: "Internal server error" },
@@ -223,14 +410,14 @@ async function handlePostRequest(
     headers["Content-Type"] = "application/json";
   }
 
-  const { data } = await axios.post(
-    `${process.env.BASE_URL}/${endpoint.join("/")}`,
-    payload,
-    {
-      headers,
-      params: searchParams,
-    }
-  );
+  const url = `${process.env.BASE_URL}/${endpoint.join("/")}`;
+  console.log("🌐 POST fallback request to:", url);
+
+  const { data } = await apiClient.post(url, payload, {
+    headers,
+    params: searchParams,
+    timeout: 60000, // 60 seconds
+  });
 
   return NextResponse.json(data);
 }

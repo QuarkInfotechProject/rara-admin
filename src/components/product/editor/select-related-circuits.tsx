@@ -40,7 +40,7 @@ function SelectRelatedCircuits() {
       name="related_circuit"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Circuits</FormLabel>
+          <FormLabel>Treks</FormLabel>
           <FormControl>
             {isPending ? (
               <Skeleton className="w-ful h-[38px]" />

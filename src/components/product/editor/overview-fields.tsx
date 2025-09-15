@@ -7,9 +7,9 @@ import { FormSchema } from "./product-editor";
 
 const overviewFields = [
   { key: "duration", label: "Duration" },
-  { key: "location", label: "Location" },
+  { key: "overview_location", label: "Location" },
   { key: "trip_grade", label: "Trip Grade" },
-  { key: "maximum_altitude", label: "Maximum Altitude" },
+  { key: "max_altitude", label: "Maximum Altitude" },
   { key: "group_size", label: "Group Size" },
   { key: "activities", label: "Activities" },
   { key: "best_time", label: "Best Time" },

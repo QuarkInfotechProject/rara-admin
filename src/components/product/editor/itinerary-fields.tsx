@@ -17,10 +17,10 @@ const defaultItinerary = {
   activity: "",
   duration: "",
   location: "",
-  maximum_altitude: "",
+  max_altitude: "",
   activities: "",
   accommodation: "",
-  meals: "",
+  meal: "",
   order: 1,
 };
 
@@ -84,10 +84,10 @@ interface ItineraryProps {
   activity: string;
   duration: string;
   location: string;
-  maximum_altitude: string;
+  max_altitude: string;
   activities: string;
   accommodation: string;
-  meals: string;
+  meal: string;
   order: number;
   changeInput: Function;
   removeItinerary: Function;
@@ -151,10 +151,10 @@ function Itinerary(props: ItineraryProps) {
         <div className="grid gap-2">
           <Label>Maximum Altitude</Label>
           <Input
-            value={props.maximum_altitude}
+            value={props.max_altitude}
             onChange={(e) =>
               props.changeInput(props.index, {
-                maximum_altitude: e.target.value,
+                max_altitude: e.target.value,
               })
             }
             placeholder="Enter max altitude"
@@ -190,10 +190,10 @@ function Itinerary(props: ItineraryProps) {
         <div className="grid gap-2">
           <Label>Meals</Label>
           <Input
-            value={props.meals}
+            value={props.meal}
             onChange={(e) =>
               props.changeInput(props.index, {
-                meals: e.target.value,
+                meal: e.target.value,
               })
             }
             placeholder="Enter meals"

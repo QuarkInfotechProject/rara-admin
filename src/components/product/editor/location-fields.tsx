@@ -2,8 +2,6 @@ import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import productRegions from "@/data/product-regions.json";
 import { FormSchema } from "./product-editor";
 import dynamic from "next/dynamic";
 const CkEditor = dynamic(() => import("@/components/ck-editor"), { ssr: false });
@@ -11,7 +9,6 @@ const CkEditor = dynamic(() => import("@/components/ck-editor"), { ssr: false })
 function LocationFields() {
   const form = useFormContext<FormSchema>();
   const howToGet = form.watch("how_to_get");
-  const productType = form.watch("type");
 
   return (
     <div className="editor-grid">
@@ -54,35 +51,7 @@ function LocationFields() {
               <FormMessage />
             </FormItem>
           )}
-        />
-        {productType === "homestay" && (
-          <FormField
-            control={form.control}
-            name="region"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Region</FormLabel>
-                <FormControl>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a region" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {productRegions.map((region) => (
-                        <SelectItem key={region.slug} value={region.slug}>
-                          {region.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+        />        
       </EditorCard>
       <EditorCard title="How to get here">
         <FormField

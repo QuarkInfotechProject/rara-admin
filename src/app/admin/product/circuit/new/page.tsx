@@ -5,11 +5,7 @@ function NewCircuit() {
   return (
     <div>
       <PageTitle title="New Circuit" prevPage="./" />
-      <ProductEditor
-        initialData={{
-          type: "circuit",
-        }}
-      />
+      <ProductEditor />
     </div>
   );
 }

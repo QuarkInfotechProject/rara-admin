@@ -73,7 +73,7 @@ function BasicFields() {
           </FormItem>
         )}
       />
-      {productType === "homestay" && (
+      {/* {productType === "trek" && (
         <FormField
           control={form.control}
           name="max_occupant"
@@ -87,7 +87,7 @@ function BasicFields() {
             </FormItem>
           )}
         />
-      )}
+      )} */}
       <FormField
         control={form.control}
         name="display_homepage"

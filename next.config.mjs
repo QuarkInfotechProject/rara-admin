@@ -4,6 +4,7 @@ const nextConfig = {
   output: "standalone",
   images: {
     remotePatterns: [{ hostname: "rara.api.quarkinfotech.com" }],
+    // remotePatterns: [{ hostname: "localhost" }],
   },
 };
 

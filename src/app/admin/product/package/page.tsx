@@ -22,7 +22,7 @@ function Packages() {
   const page = Number(searchParams.get("page")) ?? 1;
 
   const { data, isPending } = useQuery({
-    queryKey: ["products", "package", page, status],
+    queryKey: ["products", "tour", page, status],
     queryFn: async () => {
       const { data } = await axios.post<PaginatedResponse<Product>>(
         `/api/product/package/paginate`,
@@ -83,7 +83,7 @@ function Packages() {
                 </TableCell>
                 <TableCell className="capitalize">{product.short_code}</TableCell>
                 <TableCell className="w-20">
-                  <ProductActions id={product.id} type="package" />
+                  <ProductActions id={product.id} type="tour" />
                 </TableCell>
               </TableRow>
             ))}

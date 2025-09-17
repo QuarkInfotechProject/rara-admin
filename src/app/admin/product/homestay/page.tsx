@@ -22,7 +22,7 @@ function Homestays() {
   const page = Number(searchParams.get("page")) ?? 1;
 
   const { data, isPending } = useQuery({
-    queryKey: ["products", "homestay", page, status],
+    queryKey: ["products", "trek", page, status],
     queryFn: async () => {
       const { data } = await axios.post<PaginatedResponse<Product>>(
         `/api/product/homestay/paginate`,
@@ -83,7 +83,7 @@ function Homestays() {
                 </TableCell>
                 <TableCell className="capitalize">{product.short_code}</TableCell>
                 <TableCell className="w-20">
-                  <ProductActions id={product.id} type="homestay" />
+                  <ProductActions id={product.id} type="trek" />
                 </TableCell>
               </TableRow>
             ))}

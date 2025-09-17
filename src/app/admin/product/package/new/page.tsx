@@ -5,11 +5,7 @@ function NewPackage() {
   return (
     <div>
       <PageTitle title="New Package" prevPage="./" />
-      <ProductEditor
-        initialData={{
-          type: "package",
-        }}
-      />
+      <ProductEditor productType="tour" />
     </div>
   );
 }

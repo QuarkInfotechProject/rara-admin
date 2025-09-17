@@ -5,11 +5,7 @@ function NewExperience() {
   return (
     <div>
       <PageTitle title="New Experience" prevPage="./" />
-      <ProductEditor
-        initialData={{
-          type: "experience",
-        }}
-      />
+      <ProductEditor productType="tour" />
     </div>
   );
 }

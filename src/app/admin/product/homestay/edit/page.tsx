@@ -11,7 +11,7 @@ interface Props {
 
 async function EditHomestay({ searchParams }: Props) {
   const { id } = await searchParams;
-  const data = await getProductDetails(id, "homestay");
+  const data = await getProductDetails(id, "trek");
 
   if (!data) {
     notFound();
@@ -20,7 +20,7 @@ async function EditHomestay({ searchParams }: Props) {
   return (
     <div>
       <PageTitle title="Edit Homestay" prevPage="./" />
-      <ProductEditor edit initialData={data} />
+      <ProductEditor productType="tour" initialData={data} edit={true} />{" "}
     </div>
   );
 }

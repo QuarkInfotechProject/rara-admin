@@ -11,7 +11,7 @@ interface Props {
 
 async function EditExperience({ searchParams }: Props) {
   const { id } = await searchParams;
-  const data = await getProductDetails(id, "experience");
+  const data = await getProductDetails(id, "trek");
 
   if (!data) {
     notFound();
@@ -20,7 +20,7 @@ async function EditExperience({ searchParams }: Props) {
   return (
     <div>
       <PageTitle title="Edit Experience" prevPage="./" />
-      <ProductEditor edit initialData={data} />
+      <ProductEditor productType="tour" initialData={data} edit={true} />{" "}
     </div>
   );
 }

@@ -5,11 +5,7 @@ function NewHomestay() {
   return (
     <div>
       <PageTitle title="New Homestay" prevPage="./" />
-      <ProductEditor
-        initialData={{
-          type: "homestay",
-        }}
-      />
+      <ProductEditor productType="tour" />
     </div>
   );
 }

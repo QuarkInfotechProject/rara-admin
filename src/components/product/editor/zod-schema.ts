@@ -10,7 +10,8 @@ const nullableStringArray = z
   .array(z.coerce.number({ message: "Select a valid value" }))
   .nullable()
   .optional()
-  .transform((v) => v ?? []);
+  .transform((v) => v ?? [])
+  .default([]);
 const nullableFilesArray = z
   .array(z.coerce.number({ message: "Please select a file" }))
   .nullable()
@@ -56,10 +57,10 @@ const departureSchema = z
 // Updated overview schema to match the component structure
 const overviewObjectSchema = z
   .object({
-    duration: z.number().optional().default(0),
+    duration: z.string().optional().default(""),
     overview_location: z.string().optional().default(""),
     trip_grade: z.string().optional().default(""),
-    max_altitude: z.number().optional().default(0),
+    max_altitude: z.string().optional().default(""),
     group_size: z.number().optional().default(0),
     activities: z.string().optional().default(""),
     best_time: z.string().optional().default(""),
@@ -68,16 +69,6 @@ const overviewObjectSchema = z
   .optional()
   .default({});
 
-// Legacy overview schema (array format) - kept for backward compatibility
-const overviewArraySchema = z
-  .array(
-    z.object({
-      name: z.string(),
-      description: z.string(),
-    })
-  )
-  .optional()
-  .default([]);
 
 const highlightsSchema = z.object({
   title: z.string(),

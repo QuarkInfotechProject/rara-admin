@@ -1,0 +1,130 @@
+dossiers[content]
+Static dossier content - placeholder
+id
+1
+name
+The key changes I made in the convertToFormData function for handling dossiers
+slug
+test
+type
+trek
+category_details
+The key changes I made in the convertToFormData function for handling dossiers
+short_code
+test
+tagline
+The key changes I made in the convertToFormData function for handling dossiers
+short_description
+<p>The key changes I made in the <code>convertToFormData</code> function for handling dossiers</p>
+description
+<p>The key changes I made in the <code>convertToFormData</code> function for handling dossiers</p>
+impact
+<p>The key changes I made in the <code>convertToFormData</code> function for handling dossiers</p>
+prices[0][number_of_people]
+1
+prices[0][original_price_usd]
+45
+prices[0][discounted_price_usd]
+0
+departures[0][departure_from]
+2025-09-16
+departures[0][departure_to]
+2025-10-07
+departures[0][departure_per_price]
+745
+display_order
+1
+youtube_link
+latitude
+27
+longitude
+35
+location
+kathmandu
+status
+published
+how_to_get
+<p>The key changes I made in the <code>convertToFormData</code> function for handling dossiers</p>
+cornerstone
+0
+is_occupied
+0
+faqs[0][question]
+The key changes I made in the convertToFormData function for handling dossiers
+faqs[0][answer]
+The key changes I made in the convertToFormData function for handling dossiers
+faqs[0][order]
+1
+tags[0]
+1
+meta[metaTitle]
+The key changes I made in the convertToFormData
+meta[keywords][0]
+test
+meta[keywords][1]
+case
+meta[metaDescription]
+The key changes I made in the convertToFormData function for handling dossiers
+included[0]
+1
+related_blogs[0]
+1
+display_homepage
+0
+region
+max_occupant
+0
+night
+0
+overview[duration]
+12
+overview[overview_location]
+kathmandu
+overview[trip_grade]
+hard
+overview[max_altitude]
+7520
+overview[group_size]
+29
+overview[activities]
+trek
+overview[best_time]
+winter
+overview[starts]
+december
+itinerary[0][time_window]
+1
+itinerary[0][activity]
+<p>The key changes I made in the <code>convertToFormData</code> function for handling dossiers</p>
+itinerary[0][duration]
+12
+itinerary[0][location]
+kathmandu
+itinerary[0][max_altitude]
+4450
+itinerary[0][activities]
+trek
+itinerary[0][accommodation]
+yes
+itinerary[0][meal]
+yes
+itinerary[0][order]
+1
+excluded[0]
+2
+what_to_bring[0]
+4
+files[featuredImage]
+2
+files[featuredImages][0]
+3
+files[galleryImages][0]
+2
+files[faqImages][0]
+3
+files[altitudeChart]
+3
+files[locationCover]
+3
+id
+1

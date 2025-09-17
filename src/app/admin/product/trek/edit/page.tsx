@@ -11,7 +11,7 @@ interface Props {
 
 async function EditCircuit({ searchParams }: Props) {
   const { id } = await searchParams;
-  const data = await getProductDetails(id, "circuit");
+  const data = await getProductDetails(id, "trek");
 
   if (!data) {
     notFound();
@@ -19,7 +19,7 @@ async function EditCircuit({ searchParams }: Props) {
 
   return (
     <div>
-      <PageTitle title="Edit Circuit" prevPage="./" />
+      <PageTitle title="Edit Trek" prevPage="./" />
       <ProductEditor edit initialData={data} />
     </div>
   );

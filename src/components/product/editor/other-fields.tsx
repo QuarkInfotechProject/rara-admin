@@ -1,7 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
 import { FormSchema } from "./product-editor";
-import SelectAmenities from "./select-amenities";
+// import SelectAmenities from "./select-amenities";
 import SelectExcluded from "./select-excluded";
 import SelectIncluded from "./select-included";
 import SelectRelatedBlogs from "./select-related-blogs";
@@ -16,7 +16,7 @@ function RelatedFields() {
   return (
     <div className="editor-grid">
       <EditorCard title="Related">
-        <SelectAmenities />
+        {/* <SelectAmenities /> */}
         <SelectRelatedBlogs />
         <SelectRelatedCircuits />
       </EditorCard>

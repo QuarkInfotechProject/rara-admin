@@ -2,15 +2,9 @@ import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
 import { Label } from "@/components/ui/label";
 import { FormSchema } from "./product-editor";
-import { Upload } from "lucide-react";
-import dynamic from "next/dynamic";
+import { Upload, ExternalLink } from "lucide-react";
 import { useRef, useEffect } from "react";
 
-const CkEditor = dynamic(() => import("@/components/ck-editor"), {
-  ssr: false,
-});
-
-// Dossier type supports File, string, number or null for pdf_file
 type DossierType = {
   content: string;
   pdf_file: File | string | number | null;
@@ -23,97 +17,50 @@ const defaultDossier: DossierType = {
 
 function DossierFields() {
   const form = useFormContext<FormSchema>();
-  let dossiers = form.watch("dossiers");
 
-  // Handle both single object and array formats
+  // Initialize with default dossier if none exists
   useEffect(() => {
     const currentDossiers = form.getValues("dossiers");
 
-    // If dossiers is a single object (from backend), convert to array format
-    if (currentDossiers && !Array.isArray(currentDossiers)) {
-      const singleDossier = currentDossiers as any;
-      const convertedDossier = {
-        content: singleDossier.content || "",
-        pdf_file: singleDossier.pdf_file || null,
-      };
-      form.setValue("dossiers", [convertedDossier], { shouldValidate: false });
-      return;
-    }
-
-    // Only set default if dossiers is undefined, null, or empty array
     if (
       !currentDossiers ||
       (Array.isArray(currentDossiers) && currentDossiers.length === 0)
     ) {
       form.setValue("dossiers", [defaultDossier], { shouldValidate: false });
     }
-  }, []); // Empty dependency array - only run once on mount
+  }, [form]);
 
-  // Ensure we have a valid array for rendering
-  const displayDossiers = (() => {
-    // Handle single object format from backend
-    if (dossiers && !Array.isArray(dossiers)) {
-      const singleDossier = dossiers as any;
-      return [
-        {
-          content: singleDossier.content || "",
-          pdf_file: singleDossier.pdf_file || null,
-        },
-      ];
-    }
+  const dossiers = form.watch("dossiers") || [];
 
-    // Handle array format
-    return Array.isArray(dossiers) && dossiers.length > 0
+  // Ensure we always have at least one dossier to display
+  const displayDossiers =
+    Array.isArray(dossiers) && dossiers.length > 0
       ? dossiers
       : [defaultDossier];
-  })();
 
   function changeInput(
     index: number,
     data: { content?: string; pdf_file?: File | string | number | null }
   ) {
-    const currentDossiers = form.getValues("dossiers");
-    let workingDossiers;
+    const currentDossiers = form.getValues("dossiers") || [];
+    const workingDossiers = [...currentDossiers];
 
-    // Handle single object format from backend
-    if (currentDossiers && !Array.isArray(currentDossiers)) {
-      const singleDossier = currentDossiers as any;
-      workingDossiers = [
-        {
-          content: singleDossier.content || "",
-          pdf_file: singleDossier.pdf_file || null,
-        },
-      ];
-    } else {
-      workingDossiers =
-        Array.isArray(currentDossiers) && currentDossiers.length > 0
-          ? currentDossiers
-          : [defaultDossier];
+    // Ensure the index exists
+    while (workingDossiers.length <= index) {
+      workingDossiers.push({ ...defaultDossier });
     }
 
-    const updatedDossiers = [...workingDossiers];
-
-    // Make sure index exists
-    if (index >= updatedDossiers.length) {
-      while (updatedDossiers.length <= index) {
-        updatedDossiers.push(defaultDossier);
-      }
-    }
-
-    updatedDossiers[index] = {
-      ...updatedDossiers[index],
+    // Update the specific dossier
+    workingDossiers[index] = {
+      ...workingDossiers[index],
       ...data,
     };
 
-    form.setValue("dossiers", updatedDossiers, {
+    form.setValue("dossiers", workingDossiers, {
       shouldValidate: false,
       shouldDirty: true,
       shouldTouch: true,
     });
-
-    setTimeout(() => {
-      form.trigger(`dossiers.${index}.pdf_file`);
-    }, 0);
   }
 
   return (
@@ -122,10 +69,10 @@ function DossierFields() {
         <div className="space-y-4">
           {displayDossiers.map((dossier, index) => (
             <DossierItem
-              key={index}
+              key={`dossier-${index}`}
               index={index}
-              content={dossier.content || ""}
-              pdf_file={dossier.pdf_file ?? null}
+              content={dossier?.content || ""}
+              pdf_file={dossier?.pdf_file ?? null}
               changeInput={(data) => changeInput(index, data)}
             />
           ))}
@@ -172,25 +119,46 @@ function DossierItem(props: DossierItemProps) {
     }
   };
 
-  // Helper to display file name
-  const getFileDisplayName = () => {
+  // Check what type of file we have
+  const getFileInfo = () => {
     if (props.pdf_file instanceof File) {
-      return props.pdf_file.name;
+      return {
+        type: "new_file",
+        name: props.pdf_file.name,
+        size: `${Math.round(props.pdf_file.size / 1024)} KB`,
+        url: null,
+      };
+    } else if (
+      typeof props.pdf_file === "string" &&
+      props.pdf_file.startsWith("http")
+    ) {
+      return {
+        type: "existing_url",
+        name: props.pdf_file.split("/").pop() || "Existing PDF File",
+        size: null,
+        url: props.pdf_file,
+      };
     } else if (typeof props.pdf_file === "string") {
-      return props.pdf_file.split("/").pop() || props.pdf_file;
+      return {
+        type: "existing_file",
+        name: props.pdf_file,
+        size: null,
+        url: null,
+      };
     } else if (typeof props.pdf_file === "number") {
-      return `File ID: ${props.pdf_file}`;
+      return {
+        type: "file_id",
+        name: `File ID: ${props.pdf_file}`,
+        size: null,
+        url: null,
+      };
     }
-    return "";
+
+    return null;
   };
 
-  // Helper to display file size (in KB)
-  const getFileSizeDisplay = () => {
-    if (props.pdf_file instanceof File) {
-      return `${Math.round(props.pdf_file.size / 1024)} KB`;
-    }
-    return "";
-  };
+  const fileInfo = getFileInfo();
+  const hasFile = fileInfo !== null;
 
   return (
     <div className="relative border border-dashed rounded-lg p-4 grid gap-4">
@@ -199,7 +167,7 @@ function DossierItem(props: DossierItemProps) {
           Dossier PDF File
         </Label>
 
-        {/* Custom Upload Button */}
+        {/* Upload Area */}
         <div className="relative">
           <input
             ref={fileInputRef}
@@ -214,37 +182,100 @@ function DossierItem(props: DossierItemProps) {
             className="block bg-gray-900 border-2 border-dashed border-gray-600 rounded-lg p-8 flex flex-col items-center justify-center hover:bg-gray-800 hover:border-gray-500 transition-colors cursor-pointer"
           >
             <Upload className="w-6 h-6 text-white mb-2" />
-            <span className="text-white text-sm font-medium">Upload PDF</span>
+            <span className="text-white text-sm font-medium">
+              {hasFile ? "Replace PDF" : "Upload PDF"}
+            </span>
+            <span className="text-gray-400 text-xs mt-1">
+              Click to browse or drag and drop
+            </span>
           </label>
         </div>
 
-        {/* File Preview */}
-        {props.pdf_file && (
-          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-green-800 font-medium">
-                  ✓ Selected: {getFileDisplayName()}
-                </p>
-                {getFileSizeDisplay() && (
-                  <p className="text-xs text-green-600 mt-1">
-                    Size: {getFileSizeDisplay()}
-                  </p>
-                )}
+        {/* File Status Display */}
+        {hasFile && fileInfo && (
+          <div className="mt-3">
+            {/* New File Upload */}
+            {fileInfo.type === "new_file" && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-blue-800 font-medium">
+                      📄 New File: {fileInfo.name}
+                    </p>
+                    {fileInfo.size && (
+                      <p className="text-xs text-blue-600 mt-1">
+                        Size: {fileInfo.size}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="text-red-500 hover:text-red-700 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={handleRemoveFile}
-                className="text-red-500 hover:text-red-700 text-sm font-medium"
-              >
-                Remove
-              </button>
-            </div>
+            )}
+
+            {/* Existing URL File */}
+            {fileInfo.type === "existing_url" && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-sm text-green-800 font-medium">
+                      ✅ Current File: {fileInfo.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <a
+                        href={fileInfo.url!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 underline inline-flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3 h-3" />
+                        View Current PDF
+                      </a>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="text-red-500 hover:text-red-700 text-sm font-medium ml-2"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Other file types */}
+            {(fileInfo.type === "existing_file" ||
+              fileInfo.type === "file_id") && (
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-gray-800 font-medium">
+                      📎 {fileInfo.name}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="text-red-500 hover:text-red-700 text-sm font-medium"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* <div>
+      {/* Content Editor - Uncomment if needed
+      <div>
         <Label className="text-sm font-medium mb-2 block">Description</Label>
         <CkEditor
           id={`dossier-${props.index}`}

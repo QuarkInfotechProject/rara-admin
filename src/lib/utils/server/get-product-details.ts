@@ -2,7 +2,7 @@ import server from "@/lib/utils/server";
 
 async function getProductDetails(
   id: string,
-  type: "homestay" | "experience" | "circuit" | "package"
+  type: "trek" | "tour" | "activities"
 ): Promise<any | null> {
   try {
     const request = await server();

@@ -1,13 +1,13 @@
 import PageTitle from "@/components/page-title";
 import ProductEditor from "@/components/product/editor/product-editor";
 
-function NewCircuit() {
+function NewTrek() {
   return (
     <div>
-      <PageTitle title="New Circuit" prevPage="./" />
+      <PageTitle title="New Tour" prevPage="./" />
       <ProductEditor />
     </div>
   );
 }
 
-export default NewCircuit;
+export default NewTrek;

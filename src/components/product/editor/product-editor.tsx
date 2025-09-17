@@ -37,61 +37,71 @@ export type FormSchema = Product;
 function convertToFormData(data: FormSchema): FormData {
   const formData = new FormData();
 
-  // EXPLICITLY add related_circuit at the beginning
-  console.log("🔍 Checking related_circuit in data:", data.related_circuit);
+  // Define array fields that should always be included in FormData
+  const arrayFields = [
+    "related_circuit",
+    "related_homestay",
+    "related_experience",
+    "related_package",
+    "nearby_homestay",
+    "tags",
+    "included",
+    "related_blogs",
+    "amenity",
+    "excluded",
+    "what_to_bring",
+  ];
 
-  // Always ensure related_circuit is present
-  if (
-    !data.related_circuit ||
-    !Array.isArray(data.related_circuit) ||
-    data.related_circuit.length === 0
-  ) {
-    console.log(
-      "⚠️ related_circuit is missing or empty, adding static value [1]"
-    );
-    data.related_circuit = [1];
-  }
-
-  // Explicitly add related_circuit to FormData first
-  data.related_circuit.forEach((id, index) => {
-    formData.append(`related_circuit[${index}]`, String(id));
-    console.log(`✅ Added related_circuit[${index}]: ${id}`);
-  });
-
-  // Special handling for dossiers
+  // Handle dossiers specially
   if (data.dossiers && Array.isArray(data.dossiers)) {
     data.dossiers.forEach((dossier, index) => {
-      if (dossier.pdf_file instanceof File) {
-        formData.append("dossiers[pdf_file]", dossier.pdf_file);
+      // Handle content
+      if (dossier.content) {
+        formData.append(`dossiers[content]`, dossier.content);
       }
-      formData.append(
-        "dossiers[content]",
-        "Static dossier content - placeholder"
-      );
-      formData.append("cornerstone", "1");
+
+      // Handle pdf_file based on type
+      if (dossier.pdf_file) {
+        if (dossier.pdf_file instanceof File) {
+          // New file upload
+          formData.append(`dossiers[pdf_file]`, dossier.pdf_file);
+        } else if (typeof dossier.pdf_file === "string") {
+          // Existing URL - keep as is
+          formData.append(`dossiers[pdf_file]`, dossier.pdf_file);
+        } else if (typeof dossier.pdf_file === "number") {
+          // File ID
+          formData.append(`dossiers[pdf_file]`, String(dossier.pdf_file));
+        }
+      }
     });
   }
+
+  // Handle array fields specially to ensure they're always included
+  arrayFields.forEach((fieldName) => {
+    const fieldValue = data[fieldName as keyof FormSchema];
+    if (fieldValue && Array.isArray(fieldValue) && fieldValue.length > 0) {
+      fieldValue.forEach((item, index) => {
+        formData.append(`${fieldName}[${index}]`, String(item));
+      });
+    } else {
+      // Include empty array indicator for backend
+      formData.append(`${fieldName}[]`, "");
+    }
+  });
 
   const processValue = (key: string, value: any, parentKey?: string) => {
     const fieldName = parentKey ? `${parentKey}[${key}]` : key;
 
     if (value === null || value === undefined) return;
 
-    // Skip related_circuit since we handled it above
-    if (key === "related_circuit") {
-      console.log(
-        "⏭️ Skipping related_circuit in processValue (already handled)"
-      );
+    // Skip dossiers and array fields since we handled them above
+    if (key === "dossiers" || arrayFields.includes(key)) {
       return;
     }
-
-    // Skip dossiers array since we handled it above
-    if (key === "dossiers") return;
 
     if (value instanceof File) {
       formData.append(fieldName, value);
     } else if (Array.isArray(value)) {
-      // Handle array of primitives or objects
       value.forEach((item, index) => {
         if (typeof item === "object" && item !== null) {
           Object.keys(item).forEach((subKey) => {
@@ -110,6 +120,7 @@ function convertToFormData(data: FormSchema): FormData {
     }
   };
 
+  // Process other fields
   (Object.keys(data) as (keyof FormSchema)[]).forEach((key) => {
     processValue(key as string, data[key]);
   });
@@ -117,73 +128,171 @@ function convertToFormData(data: FormSchema): FormData {
   return formData;
 }
 
-// Enhanced function to detect files in nested objects
-function hasFiles(data: FormSchema): boolean {
-  console.log("🔍 Checking for files in data:", data);
-
-  const checkForFiles = (obj: any, path: string = ""): boolean => {
-    if (obj === null || obj === undefined) return false;
-
-    // Check if the current value is a File
-    if (obj instanceof File) {
-      console.log(`📄 Found File at ${path}:`, obj.name);
-      return true;
-    }
-
-    // Check if it's a FileList
-    if (obj instanceof FileList) {
-      console.log(`📄 Found FileList at ${path}:`, obj.length);
-      return obj.length > 0;
-    }
-
-    // Check arrays
-    if (Array.isArray(obj)) {
-      return obj.some((item, index) =>
-        checkForFiles(item, `${path}[${index}]`)
-      );
-    }
-
-    // Check objects
-    if (typeof obj === "object") {
-      return Object.keys(obj).some((key) =>
-        checkForFiles(obj[key], path ? `${path}.${key}` : key)
-      );
-    }
-
-    return false;
-  };
-
-  const hasFile = checkForFiles(data);
-  console.log("📄 Final file detection result:", hasFile);
-  return hasFile;
+// Helper function to safely convert values to numbers
+function safeNumberArray(value: any): number[] {
+  if (!value) return [];
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => {
+        // Handle objects with id property (like {id: 2, name: "Trek-85"})
+        if (typeof item === "object" && item !== null && "id" in item) {
+          const num = Number(item.id);
+          return isNaN(num) ? null : num;
+        }
+        // Handle direct numbers or string numbers
+        const num = Number(item);
+        return isNaN(num) ? null : num;
+      })
+      .filter((item) => item !== null) as number[];
+  }
+  return [];
 }
 
+// Helper function to process initial data
+function processInitialData(initialData: any) {
+  if (!initialData) return null;
+
+  const processed = { ...initialData };
+
+  // Convert dossiers from object to array if needed
+  if (processed.dossiers && !Array.isArray(processed.dossiers)) {
+    processed.dossiers = [
+      {
+        content: processed.dossiers.content || "",
+        pdf_file: processed.dossiers.pdf_file || null,
+      },
+    ];
+  } else if (!processed.dossiers) {
+    processed.dossiers = [];
+  }
+
+  // Process related_circuit (and log the transformation)
+  const originalRelatedCircuit = processed.related_circuit;
+  processed.related_circuit = safeNumberArray(processed.related_circuit);
+
+  // Process other array fields that might have similar issues
+  processed.related_homestay = safeNumberArray(processed.related_homestay);
+  processed.related_experience = safeNumberArray(processed.related_experience);
+  processed.related_package = safeNumberArray(processed.related_package);
+  processed.nearby_homestay = safeNumberArray(processed.nearby_homestay);
+  processed.tags = safeNumberArray(processed.tags);
+  processed.included = safeNumberArray(processed.included);
+  processed.related_blogs = safeNumberArray(processed.related_blogs);
+  processed.amenity = safeNumberArray(processed.amenity);
+  processed.excluded = safeNumberArray(processed.excluded);
+  processed.what_to_bring = safeNumberArray(processed.what_to_bring);
+
+  // Ensure numeric fields are properly converted
+  processed.cornerstone = Number(processed.cornerstone) || 0;
+  processed.is_occupied = Number(processed.is_occupied) || 0;
+  processed.display_homepage = Number(processed.display_homepage) || 0;
+  processed.latitude = Number(processed.latitude) || 0;
+  processed.longitude = Number(processed.longitude) || 0;
+
+  // Ensure overview is an object
+  if (!processed.overview || typeof processed.overview !== "object") {
+    processed.overview = {};
+  }
+
+  return processed;
+}
+
+// Updated ProductEditor component with proper dossier data processing
 function ProductEditor({ initialData, edit }: Props) {
   const [activeTab, setActiveTab] = useState("general");
   const [formSchema, setFormSchema] = useState<ZodSchema>(productSchema);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      type: "product",
+  // Process initial data to ensure proper format
+  const getProcessedDefaultValues = () => {
+    // Base defaults
+    const baseDefaults = {
+      type: "trek" as const,
       cornerstone: 0,
       is_occupied: 0,
       display_homepage: 0,
       status: "published",
       related_circuit: [],
-      ...initialData,
-    },
+      dossiers: [],
+      tags: [],
+      included: [],
+      related_blogs: [],
+      amenity: [],
+      excluded: [],
+      what_to_bring: [],
+      nearby_homestay: [],
+      related_homestay: [],
+      related_experience: [],
+      related_package: [],
+      hosts: [],
+      highlights: [],
+      itinerary: [],
+      faqs: [],
+      prices: [],
+      departures: [],
+      overview: {
+        duration: "",
+        overview_location: "",
+        trip_grade: "",
+        max_altitude: "",
+        group_size: 0,
+        activities: "",
+        best_time: "",
+        starts: "",
+      },
+      meta: {
+        metaTitle: "",
+        keywords: "",
+        metaDescription: "",
+      },
+    };
+
+    if (!initialData) {
+      return baseDefaults;
+    }
+
+    const processed = processInitialData(initialData);
+
+    const result = {
+      ...baseDefaults,
+      ...processed,
+    };
+
+    // Debug array fields specifically
+    const arrayFields = [
+      "related_circuit",
+      "tags",
+      "included",
+      "related_blogs",
+      "amenity",
+      "excluded",
+      "what_to_bring",
+    ];
+    arrayFields.forEach((field) => {
+      console.log(
+        `${field}:`,
+        result[field],
+        "isArray:",
+        Array.isArray(result[field])
+      );
+    });
+
+    return result;
+  };
+
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: getProcessedDefaultValues(),
   });
 
   const router = useRouter();
   const errors = form.formState.errors;
 
-  async function handleSubmit(data: FormSchema) {
-    console.log("🚀 Form submission started", data);
+  // Watch the related_circuit field to debug its value
+  const watchedRelatedCircuit = form.watch("related_circuit");
 
+  async function handleSubmit(data: FormSchema) {
     if (isSubmitting) {
-      console.log("⚠️ Already submitting, preventing double submission");
       return;
     }
 
@@ -191,98 +300,38 @@ function ProductEditor({ initialData, edit }: Props) {
 
     try {
       // Determine the API endpoint based on edit mode
-      const endpoint = edit
-        ? "product/circuit/update"
-        : "product/circuit/create";
+      const endpoint = edit ? "product/trek/update" : "product/trek/create";
 
-      // Always send as FormData since your API expects it
-      console.log("📤 Sending as multipart/form-data (API requirement)");
       const formData = convertToFormData(data);
 
-      // If editing, add the product ID to formData (assuming it exists in initialData)
+      // If editing, add the product ID to formData
       if (edit && initialData?.id) {
         formData.append("id", String(initialData.id));
       }
 
-      // Log FormData contents for debugging
-      console.log("📋 FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        if (value instanceof File) {
-          console.log(`  ${key}: File(${value.name}, ${value.size} bytes)`);
-        } else {
-          console.log(`  ${key}:`, value);
-        }
-      }
-
-      // Use your API route handler
       const response = await axios.post(`/api/${endpoint}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      console.log("✅ API Response:", response.data);
-
-      console.log("🔄 Invalidating queries...");
       await queryClient.invalidateQueries({
         queryKey: ["products"],
       });
 
-      console.log("🎉 Success! Showing toast and redirecting...");
       toast.success(
         edit ? "Product updated successfully" : "Product created successfully"
       );
 
       if (!edit) {
-        console.log("🔄 Redirecting to product list...");
-        router.push(`/admin/product/circuit`);
+        router.push(`/admin/product/trek`);
       }
     } catch (error) {
-      console.error("❌ Form submission error:", error);
-
-      // More detailed error logging
-      if (axios.isAxiosError(error)) {
-        console.error("Axios error details:", {
-          message: error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          headers: error.response?.headers,
-        });
-      }
-
       displayError(error, {});
     } finally {
       setIsSubmitting(false);
-      console.log("🏁 Form submission completed");
     }
   }
-
-  // Function to fetch initial data if editing
-  const fetchProductData = async (productId: string) => {
-    try {
-      console.log("🔍 Fetching product data for ID:", productId);
-      const response = await axios.get(
-        `/api/admin/product/circuit/${productId}`
-      );
-      return response.data;
-    } catch (error) {
-      console.error("❌ Error fetching product data:", error);
-      displayError(error, {});
-      return null;
-    }
-  };
-
-  // Add form validation debugging
-  useEffect(() => {
-    console.log("🔍 Form errors:", errors);
-    console.log("🔍 Form values:", form.getValues());
-    console.log("🔍 Form state:", {
-      isSubmitting: form.formState.isSubmitting,
-      isValid: form.formState.isValid,
-      isDirty: form.formState.isDirty,
-    });
-  }, [errors, form]);
 
   useEffect(() => {
     if (hasAnyProperty(errors, tabFieldsMap.general)) {
@@ -295,7 +344,7 @@ function ProductEditor({ initialData, edit }: Props) {
       setActiveTab("location");
       return;
     } else if (hasAnyProperty(errors, tabFieldsMap.overview)) {
-      setActiveTab("overview"); 
+      setActiveTab("overview");
       return;
     } else if (hasAnyProperty(errors, tabFieldsMap.itinerary)) {
       setActiveTab("itinerary");
@@ -320,7 +369,7 @@ function ProductEditor({ initialData, edit }: Props) {
 
   // Add event handler for debugging form submission
   const handleFormSubmit = (e: React.FormEvent) => {
-    console.log("🎯 Form submit event triggered", e);
+    console.log("Form submit event triggered", e);
   };
 
   return (
@@ -328,7 +377,6 @@ function ProductEditor({ initialData, edit }: Props) {
       <form
         className="grid lg:grid-cols-[1fr_300px] gap-4 lg:gap-8"
         onSubmit={(e) => {
-          console.log("📝 Form onSubmit called");
           handleFormSubmit(e);
           return form.handleSubmit(handleSubmit)(e);
         }}
@@ -352,42 +400,66 @@ function ProductEditor({ initialData, edit }: Props) {
             <TabsTrigger value="other">Other</TabsTrigger>
           </TabsList>
           <TabsContent value="general">
-            <GeneralFields />
+            <div>
+              <GeneralFields />
+            </div>
           </TabsContent>
           <TabsContent value="description">
-            <DescriptionFields />
+            <div>
+              <DescriptionFields />
+            </div>
           </TabsContent>
           <TabsContent value="pricing">
-            <PricingFields />
+            <div>
+              <PricingFields />
+            </div>
           </TabsContent>
           <TabsContent value="location">
-            <LocationFields />
+            <div>
+              <LocationFields />
+            </div>
           </TabsContent>
           <TabsContent value="overview">
-            <OverviewFields />
+            <div>
+              <OverviewFields />
+            </div>
           </TabsContent>
           <TabsContent value="faqs">
-            <FAQSFields />
+            <div>
+              <FAQSFields />
+            </div>
           </TabsContent>
           <TabsContent value="itinerary">
-            <ItineraryFields />
+            <div>
+              <ItineraryFields />
+            </div>
           </TabsContent>
           <TabsContent value="dossiers">
-            <DossierFields />
+            <div>
+              <DossierFields />
+            </div>
           </TabsContent>
           <TabsContent value="departure">
-            <DepartureDatesField />
+            <div>
+              <DepartureDatesField />
+            </div>
           </TabsContent>
           <TabsContent value="files">
-            <Files />
+            <div>
+              <Files />
+            </div>
           </TabsContent>
           <TabsContent value="other">
-            <OtherFields />
+            <div>
+              <OtherFields />
+            </div>
           </TabsContent>
         </Tabs>
         <div className="md:sticky top-4 flex flex-col gap-4 lg:gap-8">
           <PublishControls edit={edit} isSubmitting={isSubmitting} />
-          <BasicFields />
+          <div>
+            <BasicFields />
+          </div>
         </div>
       </form>
     </Form>

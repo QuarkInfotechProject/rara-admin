@@ -11,7 +11,7 @@ import {
 
 interface Props {
   id: number;
-  type: "homestay" | "experience" | "circuit" | "package";
+  type: "trek" | "tour" | "activities";
 }
 
 function ProductActions({ id, type }: Props) {

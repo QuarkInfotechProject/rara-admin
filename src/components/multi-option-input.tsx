@@ -13,9 +13,21 @@ function MultiOptionInput({ options, setOptions, ...rest }: Props) {
   const [error, setError] = useState("");
   const [value, setValue] = useState("");
 
+  // Safely handle options - ensure it's always an array for operations
+  const safeOptions = React.useMemo(() => {
+    if (!options || !Array.isArray(options)) {
+      console.warn("⚠️ MultiOptionInput received invalid options:", options);
+      return [];
+    }
+    return options;
+  }, [options]);
+
   function addOption() {
-    if (value && !options?.some((item) => item.toLowerCase() === value.toLowerCase())) {
-      setOptions([...(options ? options : []), value]);
+    if (
+      value &&
+      !safeOptions.some((item) => item.toLowerCase() === value.toLowerCase())
+    ) {
+      setOptions([...safeOptions, value]);
       setValue("");
       setError("");
     } else {
@@ -24,18 +36,38 @@ function MultiOptionInput({ options, setOptions, ...rest }: Props) {
   }
 
   function removeOption(e: React.MouseEvent<SVGElement>) {
-    if (options) {
-      const updatedOptions = options.filter((option) => option !== e.currentTarget.id);
+    const targetId = e.currentTarget.id;
+    if (safeOptions.length > 0) {
+      const updatedOptions = safeOptions.filter(
+        (option) => option !== targetId
+      );
       setOptions(updatedOptions);
     }
   }
 
+  // Debug logging
+  React.useEffect(() => {
+    if (options !== undefined && !Array.isArray(options)) {
+      console.error(
+        "❌ MultiOptionInput - options should be an array or undefined, got:",
+        typeof options,
+        options
+      );
+    }
+  }, [options]);
+
   return (
     <div>
       <div className="flex gap-2 flex-wrap mb-3">
-        {options?.map((option) => (
+        {safeOptions.map((option) => (
           <Badge className="rounded-sm px-2" key={option}>
-            {option} <IconX id={option} size={16} className="text-white ml-2 cursor-pointer" onClick={removeOption} />
+            {option}
+            <IconX
+              id={option}
+              size={16}
+              className="text-white ml-2 cursor-pointer"
+              onClick={removeOption}
+            />
           </Badge>
         ))}
       </div>

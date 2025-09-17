@@ -1,3 +1,4 @@
+import React, { useEffect } from "react";
 import { useFormContext } from "react-hook-form";
 import EditorCard from "@/components/editor-card";
 import {
@@ -8,42 +9,26 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import SEOEditor from "../../seo-editor";
 import { FormSchema } from "./product-editor";
 
 function GeneralFields() {
   const form = useFormContext<FormSchema>();
 
+  useEffect(() => {
+    if (!form.getValues("type")) {
+      form.setValue("type", "trek");
+    }
+  }, [form]);
+
   return (
     <div className="editor-grid">
       <EditorCard title="Basic">
+        {/* Category field is hidden and automatically set to "trek" */}
         <FormField
           control={form.control}
           name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="trek">Trek</SelectItem>
-                  <SelectItem value="tour">Tour</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
+          render={({ field }) => <input type="hidden" {...field} />}
         />
 
         <FormField

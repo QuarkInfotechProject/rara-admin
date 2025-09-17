@@ -5,7 +5,7 @@ function NewTrek() {
   return (
     <div>
       <PageTitle title="New Trek" prevPage="./" />
-      <ProductEditor />
+      <ProductEditor productType="trek" />
     </div>
   );
 }

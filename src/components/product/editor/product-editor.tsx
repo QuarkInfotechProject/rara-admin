@@ -26,14 +26,43 @@ import toast from "react-hot-toast";
 import DossierFields from "./dossier-fields";
 import DepartureDatesField from "./departure-date";
 
+// Define product types
+export type ProductType = "trek" | "tour" | "activities";
+
 interface Props {
   initialData?: any;
   edit?: boolean;
+  productType: ProductType; // Make this required
 }
 
 export type FormSchema = Product;
 
-// Helper function to convert form data to FormData
+// Helper function to get API endpoints based on product type
+function getApiEndpoints(productType: ProductType) {
+  const endpoints = {
+    trek: {
+      create: "product/trek/create",
+      update: "product/trek/update",
+    },
+    tour: {
+      create: "product/tour/create",
+      update: "product/tour/update",
+    },
+    activities: {
+      create: "product/activities/create",
+      update: "product/activities/update",
+    },
+  };
+
+  return endpoints[productType];
+}
+
+// Helper function to get redirect path based on product type
+function getRedirectPath(productType: ProductType) {
+  return `/admin/product/${productType}`;
+}
+
+// Enhanced convertToFormData function with better overview handling
 function convertToFormData(data: FormSchema): FormData {
   const formData = new FormData();
 
@@ -76,6 +105,21 @@ function convertToFormData(data: FormSchema): FormData {
     });
   }
 
+  // Handle overview object specially
+  if (data.overview && typeof data.overview === 'object') {
+    Object.entries(data.overview).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        // Convert group_size to number if it's a string
+        if (key === 'group_size' && typeof value === 'string') {
+          const numValue = Number(value) || 0;
+          formData.append(`overview[${key}]`, String(numValue));
+        } else {
+          formData.append(`overview[${key}]`, String(value));
+        }
+      }
+    });
+  }
+
   // Handle array fields specially to ensure they're always included
   arrayFields.forEach((fieldName) => {
     const fieldValue = data[fieldName as keyof FormSchema];
@@ -94,8 +138,8 @@ function convertToFormData(data: FormSchema): FormData {
 
     if (value === null || value === undefined) return;
 
-    // Skip dossiers and array fields since we handled them above
-    if (key === "dossiers" || arrayFields.includes(key)) {
+    // Skip dossiers, array fields, and overview since we handled them above
+    if (key === "dossiers" || key === "overview" || arrayFields.includes(key)) {
       return;
     }
 
@@ -158,7 +202,7 @@ function processInitialData(initialData: any) {
   if (processed.dossiers && !Array.isArray(processed.dossiers)) {
     processed.dossiers = [
       {
-        content: processed.dossiers.content || "",
+        content: processed.dossiers.content || "test data static here",
         pdf_file: processed.dossiers.pdf_file || null,
       },
     ];
@@ -197,17 +241,24 @@ function processInitialData(initialData: any) {
   return processed;
 }
 
-// Updated ProductEditor component with proper dossier data processing
-function ProductEditor({ initialData, edit }: Props) {
+// Helper function to get default type based on product type
+function getDefaultType(
+  productType: ProductType
+): "trek" | "tour" | "activities" {
+  return productType;
+}
+
+// Updated ProductEditor component with proper product type handling
+function ProductEditor({ initialData, edit, productType }: Props) {
   const [activeTab, setActiveTab] = useState("general");
   const [formSchema, setFormSchema] = useState<ZodSchema>(productSchema);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Process initial data to ensure proper format
   const getProcessedDefaultValues = () => {
-    // Base defaults
+    // Base defaults with dynamic type based on productType
     const baseDefaults = {
-      type: "trek" as const,
+      type: getDefaultType(productType),
       cornerstone: 0,
       is_occupied: 0,
       display_homepage: 0,
@@ -256,6 +307,8 @@ function ProductEditor({ initialData, edit }: Props) {
     const result = {
       ...baseDefaults,
       ...processed,
+      // Ensure type matches productType even if initialData has different type
+      type: getDefaultType(productType),
     };
 
     // Debug array fields specifically
@@ -288,8 +341,7 @@ function ProductEditor({ initialData, edit }: Props) {
   const router = useRouter();
   const errors = form.formState.errors;
 
-  // Watch the related_circuit field to debug its value
-  const watchedRelatedCircuit = form.watch("related_circuit");
+  // Add this enhanced handleSubmit function to your ProductEditor component
 
   async function handleSubmit(data: FormSchema) {
     if (isSubmitting) {
@@ -299,10 +351,37 @@ function ProductEditor({ initialData, edit }: Props) {
     setIsSubmitting(true);
 
     try {
-      // Determine the API endpoint based on edit mode
-      const endpoint = edit ? "product/trek/update" : "product/trek/create";
+      // Debug: Log the data being submitted
+      console.log("🔍 Submitting data:", data);
+      console.log("🔍 Overview data:", data.overview);
+
+      // Validate overview object has proper structure
+      if (!data.overview || typeof data.overview !== "object") {
+        console.error("❌ Overview is missing or invalid:", data.overview);
+        throw new Error("Overview data is required");
+      }
+
+      // Ensure group_size is a number
+      if (
+        data.overview.group_size &&
+        typeof data.overview.group_size === "string"
+      ) {
+        data.overview.group_size = Number(data.overview.group_size) || 0;
+      }
+
+      // Get the appropriate API endpoints based on product type
+      const endpoints = getApiEndpoints(productType);
+      const endpoint = edit ? endpoints.update : endpoints.create;
+
+      console.log("🌐 API endpoint:", endpoint);
 
       const formData = convertToFormData(data);
+
+      // Debug: Log FormData contents
+      console.log("📋 FormData contents:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}:`, value);
+      }
 
       // If editing, add the product ID to formData
       if (edit && initialData?.id) {
@@ -315,23 +394,64 @@ function ProductEditor({ initialData, edit }: Props) {
         },
       });
 
+      console.log("✅ API Response:", response.data);
+
       await queryClient.invalidateQueries({
         queryKey: ["products"],
       });
 
+      // Invalidate specific product type queries
+      await queryClient.invalidateQueries({
+        queryKey: [productType],
+      });
+
       toast.success(
-        edit ? "Product updated successfully" : "Product created successfully"
+        edit
+          ? `${productType} updated successfully`
+          : `${productType} created successfully`
       );
 
       if (!edit) {
-        router.push(`/admin/product/trek`);
+        router.push(getRedirectPath(productType));
       }
     } catch (error) {
+      console.error("❌ Submission error:", error);
+
+      // Enhanced error logging
+      if (axios.isAxiosError(error)) {
+        console.error("API Error Response:", error.response?.data);
+        console.error("API Error Status:", error.response?.status);
+      }
+
       displayError(error, {});
     } finally {
       setIsSubmitting(false);
     }
   }
+
+  // Also add this enhanced form submission handler
+  const handleFormSubmit = (e: React.FormEvent) => {
+    console.log("📝 Form submit event triggered");
+    console.log("🏷️  Product type:", productType);
+
+    // Check for form validation errors
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.error("🚫 Form validation errors:", errors);
+
+      // Log specific overview errors
+      if (errors.overview) {
+        console.error("🔍 Overview errors:", errors.overview);
+      }
+    } else {
+      console.log("✅ No validation errors detected");
+    }
+
+    // Log current form values
+    const currentValues = form.getValues();
+    console.log("📊 Current form values:", currentValues);
+    console.log("🔍 Overview values:", currentValues.overview);
+  };
 
   useEffect(() => {
     if (hasAnyProperty(errors, tabFieldsMap.general)) {
@@ -367,11 +487,6 @@ function ProductEditor({ initialData, edit }: Props) {
     }
   }, [errors]);
 
-  // Add event handler for debugging form submission
-  const handleFormSubmit = (e: React.FormEvent) => {
-    console.log("Form submit event triggered", e);
-  };
-
   return (
     <Form {...form}>
       <form
@@ -401,7 +516,7 @@ function ProductEditor({ initialData, edit }: Props) {
           </TabsList>
           <TabsContent value="general">
             <div>
-              <GeneralFields />
+              <GeneralFields productType={productType} />
             </div>
           </TabsContent>
           <TabsContent value="description">

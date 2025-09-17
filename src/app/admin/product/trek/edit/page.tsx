@@ -20,7 +20,11 @@ async function EditCircuit({ searchParams }: Props) {
   return (
     <div>
       <PageTitle title="Edit Trek" prevPage="./" />
-      <ProductEditor edit initialData={data} />
+      <ProductEditor
+        productType="trek"
+        initialData={data}
+        edit={true}
+      />
     </div>
   );
 }

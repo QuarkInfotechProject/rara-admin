@@ -5,7 +5,7 @@ function NewActivities() {
   return (
     <div>
       <PageTitle title="New Activities" prevPage="./" />
-      <ProductEditor />
+      <ProductEditor productType="activities" />
     </div>
   );
 }

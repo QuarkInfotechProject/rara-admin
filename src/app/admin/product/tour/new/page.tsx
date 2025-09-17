@@ -5,7 +5,7 @@ function NewTrek() {
   return (
     <div>
       <PageTitle title="New Tour" prevPage="./" />
-      <ProductEditor />
+      <ProductEditor productType="tour" />
     </div>
   );
 }

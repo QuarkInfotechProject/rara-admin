@@ -12,19 +12,27 @@ import { Input } from "@/components/ui/input";
 import SEOEditor from "../../seo-editor";
 import { FormSchema } from "./product-editor";
 
-function GeneralFields() {
+interface GeneralFieldsProps {
+  productType?: "trek" | "tour" | "activities";
+}
+
+function GeneralFields({ productType }: GeneralFieldsProps) {
   const form = useFormContext<FormSchema>();
 
   useEffect(() => {
-    if (!form.getValues("type")) {
-      form.setValue("type", "trek");
+    // Set the type based on productType prop, fallback to existing value or "trek"
+    const currentType = form.getValues("type");
+    const typeToSet = productType || currentType || "trek";
+
+    if (currentType !== typeToSet) {
+      form.setValue("type", typeToSet);
     }
-  }, [form]);
+  }, [form, productType]);
 
   return (
     <div className="editor-grid">
       <EditorCard title="Basic">
-        {/* Category field is hidden and automatically set to "trek" */}
+        {/* Category field is hidden and automatically set based on productType */}
         <FormField
           control={form.control}
           name="type"
@@ -39,7 +47,7 @@ function GeneralFields() {
               <FormLabel>Category Description</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Brief description of the category, e.g., Luxury trekking experience in the Himalayas"
+                  placeholder="Brief description of the category"
                   {...field}
                 />
               </FormControl>
@@ -47,6 +55,7 @@ function GeneralFields() {
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="name"
@@ -54,12 +63,13 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Everest Base Camp Trek" {...field} />
+                <Input placeholder="Enter product name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="slug"
@@ -67,12 +77,13 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Slug</FormLabel>
               <FormControl>
-                <Input placeholder="everest-base-camp-trek" {...field} />
+                <Input placeholder="product-slug" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="tagline"
@@ -80,15 +91,13 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Tagline</FormLabel>
               <FormControl>
-                <Input
-                  placeholder="Journey to the roof of the world"
-                  {...field}
-                />
+                <Input placeholder="Enter tagline" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="short_code"
@@ -96,12 +105,13 @@ function GeneralFields() {
             <FormItem>
               <FormLabel>Short Code</FormLabel>
               <FormControl>
-                <Input placeholder="EBC2024" {...field} />
+                <Input placeholder="Enter short code" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         {/* <FormField
           control={form.control}
           name="youtube_link"
@@ -115,6 +125,7 @@ function GeneralFields() {
             </FormItem>
           )}
         /> */}
+
         <FormField
           control={form.control}
           name="night"

@@ -106,11 +106,11 @@ function convertToFormData(data: FormSchema): FormData {
   }
 
   // Handle overview object specially
-  if (data.overview && typeof data.overview === 'object') {
+  if (data.overview && typeof data.overview === "object") {
     Object.entries(data.overview).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         // Convert group_size to number if it's a string
-        if (key === 'group_size' && typeof value === 'string') {
+        if (key === "group_size" && typeof value === "string") {
           const numValue = Number(value) || 0;
           formData.append(`overview[${key}]`, String(numValue));
         } else {
@@ -210,11 +210,8 @@ function processInitialData(initialData: any) {
     processed.dossiers = [];
   }
 
-  // Process related_circuit (and log the transformation)
-  const originalRelatedCircuit = processed.related_circuit;
+  // Process array fields that might have similar issues
   processed.related_circuit = safeNumberArray(processed.related_circuit);
-
-  // Process other array fields that might have similar issues
   processed.related_homestay = safeNumberArray(processed.related_homestay);
   processed.related_experience = safeNumberArray(processed.related_experience);
   processed.related_package = safeNumberArray(processed.related_package);
@@ -311,25 +308,6 @@ function ProductEditor({ initialData, edit, productType }: Props) {
       type: getDefaultType(productType),
     };
 
-    // Debug array fields specifically
-    const arrayFields = [
-      "related_circuit",
-      "tags",
-      "included",
-      "related_blogs",
-      "amenity",
-      "excluded",
-      "what_to_bring",
-    ];
-    arrayFields.forEach((field) => {
-      console.log(
-        `${field}:`,
-        result[field],
-        "isArray:",
-        Array.isArray(result[field])
-      );
-    });
-
     return result;
   };
 
@@ -341,8 +319,6 @@ function ProductEditor({ initialData, edit, productType }: Props) {
   const router = useRouter();
   const errors = form.formState.errors;
 
-  // Add this enhanced handleSubmit function to your ProductEditor component
-
   async function handleSubmit(data: FormSchema) {
     if (isSubmitting) {
       return;
@@ -351,13 +327,8 @@ function ProductEditor({ initialData, edit, productType }: Props) {
     setIsSubmitting(true);
 
     try {
-      // Debug: Log the data being submitted
-      console.log("🔍 Submitting data:", data);
-      console.log("🔍 Overview data:", data.overview);
-
       // Validate overview object has proper structure
       if (!data.overview || typeof data.overview !== "object") {
-        console.error("❌ Overview is missing or invalid:", data.overview);
         throw new Error("Overview data is required");
       }
 
@@ -373,15 +344,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
       const endpoints = getApiEndpoints(productType);
       const endpoint = edit ? endpoints.update : endpoints.create;
 
-      console.log("🌐 API endpoint:", endpoint);
-
       const formData = convertToFormData(data);
-
-      // Debug: Log FormData contents
-      console.log("📋 FormData contents:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}:`, value);
-      }
 
       // If editing, add the product ID to formData
       if (edit && initialData?.id) {
@@ -393,8 +356,6 @@ function ProductEditor({ initialData, edit, productType }: Props) {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      console.log("✅ API Response:", response.data);
 
       await queryClient.invalidateQueries({
         queryKey: ["products"],
@@ -415,43 +376,11 @@ function ProductEditor({ initialData, edit, productType }: Props) {
         router.push(getRedirectPath(productType));
       }
     } catch (error) {
-      console.error("❌ Submission error:", error);
-
-      // Enhanced error logging
-      if (axios.isAxiosError(error)) {
-        console.error("API Error Response:", error.response?.data);
-        console.error("API Error Status:", error.response?.status);
-      }
-
       displayError(error, {});
     } finally {
       setIsSubmitting(false);
     }
   }
-
-  // Also add this enhanced form submission handler
-  const handleFormSubmit = (e: React.FormEvent) => {
-    console.log("📝 Form submit event triggered");
-    console.log("🏷️  Product type:", productType);
-
-    // Check for form validation errors
-    const errors = form.formState.errors;
-    if (Object.keys(errors).length > 0) {
-      console.error("🚫 Form validation errors:", errors);
-
-      // Log specific overview errors
-      if (errors.overview) {
-        console.error("🔍 Overview errors:", errors.overview);
-      }
-    } else {
-      console.log("✅ No validation errors detected");
-    }
-
-    // Log current form values
-    const currentValues = form.getValues();
-    console.log("📊 Current form values:", currentValues);
-    console.log("🔍 Overview values:", currentValues.overview);
-  };
 
   useEffect(() => {
     if (hasAnyProperty(errors, tabFieldsMap.general)) {
@@ -491,10 +420,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
     <Form {...form}>
       <form
         className="grid lg:grid-cols-[1fr_300px] gap-4 lg:gap-8"
-        onSubmit={(e) => {
-          handleFormSubmit(e);
-          return form.handleSubmit(handleSubmit)(e);
-        }}
+        onSubmit={form.handleSubmit(handleSubmit)}
       >
         <Tabs
           defaultValue="general"
@@ -566,7 +492,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
           </TabsContent>
           <TabsContent value="other">
             <div>
-              <OtherFields />
+              <OtherFields productType={productType} />
             </div>
           </TabsContent>
         </Tabs>

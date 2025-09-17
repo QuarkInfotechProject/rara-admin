@@ -20,7 +20,6 @@ function GeneralFields({ productType }: GeneralFieldsProps) {
   const form = useFormContext<FormSchema>();
 
   useEffect(() => {
-    // Set the type based on productType prop, fallback to existing value or "trek"
     const currentType = form.getValues("type");
     const typeToSet = productType || currentType || "trek";
 

@@ -33,6 +33,8 @@ import {
   Italic,
   Link,
   LinkImage,
+  List,
+  ListProperties,
   Paragraph,
   SelectAll,
   SpecialCharacters,
@@ -48,6 +50,7 @@ import {
   TableProperties,
   TableToolbar,
   TextTransformation,
+  TodoList,
   Underline,
   Undo,
 } from "ckeditor5";
@@ -76,6 +79,10 @@ function Editor({ id, onChange, initialData }: Props) {
         "bold",
         "italic",
         "underline",
+        "|",
+        "bulletedList",
+        "numberedList",
+        "todoList",
         "|",
         "link",
         "insertImageViaUrl",
@@ -120,6 +127,8 @@ function Editor({ id, onChange, initialData }: Props) {
       Italic,
       Link,
       LinkImage,
+      List,
+      ListProperties,
       Paragraph,
       SelectAll,
       SpecialCharacters,
@@ -135,6 +144,7 @@ function Editor({ id, onChange, initialData }: Props) {
       TableProperties,
       TableToolbar,
       TextTransformation,
+      TodoList,
       Underline,
       Undo,
     ],
@@ -165,17 +175,32 @@ function Editor({ id, onChange, initialData }: Props) {
         },
       },
     },
+    list: {
+      properties: {
+        styles: true,
+        startIndex: true,
+        reversed: true,
+      },
+    },
     menuBar: {
       isVisible: true,
     },
     placeholder: "Type or paste your content here!",
     table: {
-      contentToolbar: ["tableColumn", "tableRow", "mergeTableCells", "tableProperties", "tableCellProperties"],
+      contentToolbar: [
+        "tableColumn",
+        "tableRow",
+        "mergeTableCells",
+        "tableProperties",
+        "tableCellProperties",
+      ],
     },
   };
 
   function initFileSelector() {
-    const imageTool = document.querySelector(`#${id} [data-cke-tooltip-text="Insert image via URL"]`);
+    const imageTool = document.querySelector(
+      `#${id} [data-cke-tooltip-text="Insert image via URL"]`
+    );
     if (imageTool) {
       const clone = imageTool.cloneNode(true);
       imageTool?.parentNode?.replaceChild(clone, imageTool);

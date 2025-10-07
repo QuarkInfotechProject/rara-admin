@@ -50,7 +50,7 @@ function Reviews() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Fullname</TableHead>
+            {/* <TableHead>Fullname</TableHead> */}
             <TableHead>Status</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Rating</TableHead>
@@ -62,7 +62,7 @@ function Reviews() {
           {!isPending &&
             data?.map((review) => (
               <TableRow className="*:py-2" key={review.id}>
-                <TableCell className="font-medium truncate capitalize">{review.user.full_name}</TableCell>
+                {/* <TableCell className="font-medium truncate capitalize">{review.user.full_name}</TableCell> */}
                 <TableCell>
                   <Badge className="capitalize" variant="outline">
                     {review.approved === 1 ? "Approved" : "Pending"}

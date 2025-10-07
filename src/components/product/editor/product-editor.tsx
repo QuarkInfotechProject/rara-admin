@@ -74,6 +74,7 @@ function convertToFormData(data: FormSchema): FormData {
     "related_package",
     "nearby_homestay",
     "tags",
+    "category",
     "included",
     "related_blogs",
     "amenity",
@@ -217,6 +218,7 @@ function processInitialData(initialData: any) {
   processed.related_package = safeNumberArray(processed.related_package);
   processed.nearby_homestay = safeNumberArray(processed.nearby_homestay);
   processed.tags = safeNumberArray(processed.tags);
+  processed.category = safeNumberArray(processed.category);
   processed.included = safeNumberArray(processed.included);
   processed.related_blogs = safeNumberArray(processed.related_blogs);
   processed.amenity = safeNumberArray(processed.amenity);
@@ -263,6 +265,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
       related_circuit: [],
       dossiers: [],
       tags: [],
+      category: [],
       included: [],
       related_blogs: [],
       amenity: [],

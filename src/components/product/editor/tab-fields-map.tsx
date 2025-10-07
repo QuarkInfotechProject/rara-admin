@@ -3,7 +3,6 @@ const tabFieldsMap = {
     "name",
     "slug",
     "type",
-    "category_details",
     "tagline",
     "short_code",
     "youtube_link",

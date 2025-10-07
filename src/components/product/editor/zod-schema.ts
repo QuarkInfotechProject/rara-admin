@@ -127,7 +127,6 @@ const baseSchema = z.object({
   type: z.enum(["trek", "tour", "activities", "safari"], {
     message: "Please select a valid category",
   }),
-  category_details: nullableStringValue,
   // type: z.string(),
   short_code: z
     .string()
@@ -172,6 +171,7 @@ const baseSchema = z.object({
     })
   ),
   tags: z.array(z.coerce.number()),
+  category: z.array(z.coerce.number()),
   meta: z.object({ metaTitle, keywords, metaDescription }),
   included: z.array(z.coerce.number({ message: "Select a valid value" })),
   related_blogs: z.array(z.coerce.number({ message: "Select a blog" })),

@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import SEOEditor from "../../seo-editor";
 import { FormSchema } from "./product-editor";
+import SelectCategory from "./select-category";
 
 interface GeneralFieldsProps {
   productType?: "trek" | "tour" | "activities";
@@ -38,22 +39,7 @@ function GeneralFields({ productType }: GeneralFieldsProps) {
           render={({ field }) => <input type="hidden" {...field} />}
         />
 
-        <FormField
-          control={form.control}
-          name="category_details"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category Description</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Brief description of the category"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <SelectCategory />
 
         <FormField
           control={form.control}

@@ -13,17 +13,17 @@ function BookingStatusTabs() {
       <Link className={cn(!filter.product_type && selectedClass)} href="?">
         All
       </Link>
-      <Link className={cn(filter.product_type === "homestay" && selectedClass)} href="?product_type=homestay">
-        Homestay
+      <Link className={cn(filter.product_type === "trek" && selectedClass)} href="?product_type=trek">
+        Trek
       </Link>
-      <Link className={cn(filter.product_type === "experience" && selectedClass)} href="?product_type=experience">
-        Experience
+      <Link className={cn(filter.product_type === "tour" && selectedClass)} href="?product_type=tour">
+        Tour
       </Link>
-      <Link className={cn(filter.product_type === "package" && selectedClass)} href="?product_type=package">
-        Package
+      <Link className={cn(filter.product_type === "activities" && selectedClass)} href="?product_type=activities">
+        Activities
       </Link>
       <Link className={cn(filter.product_type === "circuit" && selectedClass)} href="?product_type=circuit">
-        Circuit
+        Car Rental
       </Link>
     </div>
   );

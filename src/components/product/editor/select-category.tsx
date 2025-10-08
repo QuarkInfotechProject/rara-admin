@@ -18,41 +18,47 @@ function SelectCategory() {
   const { data, isPending } = useQuery<
     {
       id: number;
-      name: string;
+      category_name: string;
     }[]
   >({
     queryKey: ["product-editor-category"],
     queryFn: async () => {
-      const { data } = await axios.get("/api/product/tag-list");
+      const { data } = await axios.get("/api/category/active/list");
       return data.data;
     },
   });
 
   const defaultOptions = useMemo(() => {
-    const selected = new Set(form.getValues("tags") ?? []);
+    const selected = new Set(form.getValues("category") ?? []);
     const filteredOptions = data ? data.filter((item) => selected.has(item.id)) : [];
-    return filteredOptions.map((option) => ({ label: option.name, value: option.id }));
+    return filteredOptions.map((option) => ({
+      label: option.category_name,
+      value: option.id,
+    }));
   }, [data, form]);
 
   return (
     <FormField
       control={form.control}
-      name="tags"
+      name="category"
       render={({ field }) => (
         <FormItem>
           <FormLabel>Category</FormLabel>
           <FormControl>
             {isPending ? (
-              <Skeleton className="w-ful h-[38px]" />
+              <Skeleton className="w-full h-[38px]" />
             ) : (
               <Select
                 classNamePrefix="chn_select"
                 isMulti
                 defaultValue={defaultOptions}
-                options={data?.map((tag) => ({ label: tag.name, value: tag.id }))}
+                options={data?.map((tag) => ({
+                  label: tag.category_name,
+                  value: tag.id,
+                }))}
                 onChange={(options) => {
                   form.setValue(
-                    "tags",
+                    "category",
                     options.map((option) => option.value)
                   );
                 }}

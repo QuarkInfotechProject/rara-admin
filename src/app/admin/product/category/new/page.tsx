@@ -1,5 +1,5 @@
-import CategoryEditor from "@/components/blog/category-editor";
 import PageTitle from "@/components/page-title";
+import CategoryEditor from "@/components/product/category-editor";
 
 function NewCategory() {
   return (

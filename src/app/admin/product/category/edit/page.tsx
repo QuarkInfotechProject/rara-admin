@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import CategoryEditor from "@/components/blog/category-editor";
+import CategoryEditor from "@/components/product/category-editor";
 import PageTitle from "@/components/page-title";
-import getBlogCategory from "@/lib/utils/server/get-blog-category";
+import getBlogCategory from "@/lib/utils/server/get-product-category";
 
 interface Props {
   searchParams: Promise<{

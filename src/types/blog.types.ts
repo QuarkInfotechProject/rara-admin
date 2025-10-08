@@ -48,6 +48,27 @@ export interface BlogCategory {
   meta: { metaTitle: string; keywords: string[]; metaDescription: string };
 }
 
+export interface ProductCategoryAPIResponse {
+  id: number;
+  category_name: string;
+  slug: string;
+  description: string;
+  status: "active" | "inactive";
+  meta: { metaTitle: string; keywords: string[]; metaDescription: string };
+
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductCategory {
+  id: number;
+  category_name: string;
+  slug: string;
+  status: "active" | "inactive";
+  description: string;
+  meta: { metaTitle: string; keywords: string[]; metaDescription: string };
+}
+
 export interface PaginatedBlogResponse {
   id: number;
   status: string;

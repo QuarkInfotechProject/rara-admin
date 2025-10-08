@@ -7,9 +7,15 @@ import { useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PaginatedBlogCategoryResponse } from "@/types/blog.types";
-import { PaginatedResponse } from "@/types/index.types";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { CategoryApiResponse } from "@/types/category.types";
 import { useQuery } from "@tanstack/react-query";
 import CategoryActions from "@/components/product/category-actions";
 
@@ -20,18 +26,14 @@ function Category() {
   const search = searchParams.get("search");
 
   const { data, isPending } = useQuery({
-    queryKey: ["blog-categories", page, search],
+    queryKey: ["categories", page, search],
     queryFn: async () => {
-      const { data } = await axios.post<PaginatedResponse<PaginatedBlogCategoryResponse>>(
-        `/api/blog/category/paginate`,
-        {
-          filters: {
-            name: search,
-          },
-        },
+      const { data } = await axios.get<CategoryApiResponse>(
+        `/api/category/lists`,
         {
           params: {
             page,
+            ...(search && { name: search }),
           },
         }
       );
@@ -61,16 +63,30 @@ function Category() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Slug</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isPending && <LoadingSkeletion columns={3} />}
+          {isPending && <LoadingSkeletion columns={4} />}
           {!isPending &&
             data?.map((category) => (
               <TableRow className="*:py-2" key={category.id}>
-                <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell className="font-medium">
+                  {category.category_name}
+                </TableCell>
                 <TableCell>{category.slug}</TableCell>
+                <TableCell>
+                  <span
+                    className={`capitalize ${
+                      category.status === "active"
+                        ? "text-green-600"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {category.status}
+                  </span>
+                </TableCell>
                 <TableCell className="w-20">
                   <CategoryActions id={category.id} />
                 </TableCell>

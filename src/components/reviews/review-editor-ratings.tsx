@@ -1,5 +1,11 @@
 import { useFormContext } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import EditorCard from "../editor-card";
 import { FormData } from "./zod-schema";
@@ -11,7 +17,7 @@ import displayError from "@/lib/utils/display-error";
 
 function ReviewEditorRatings() {
   const form = useFormContext<FormData>();
-  const isApproved = form.watch("approved") === 1;
+  const isApproved = form.watch("approved"); // Now it's a boolean
   const reviewId = form.watch("id");
 
   async function toggleReviewStatus() {
@@ -21,7 +27,7 @@ function ReviewEditorRatings() {
       await queryClient.invalidateQueries({
         queryKey: ["reviews"],
       });
-      form.setValue("approved", isApproved ? 0 : 1);
+      form.setValue("approved", !isApproved); // Toggle boolean
       toast.success("Review updated successfully!", { id: toastId });
     } catch (error) {
       displayError(error, { toastId, fallback: "Failed to updated review!" });

@@ -14,7 +14,7 @@ const formSchema = z.object({
   reply_to_public_review: z.string().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
-  approved: z.coerce.number(),
+  approved: z.coerce.boolean(),
   product: z.object({
     id: z.coerce.number(),
     name: z.string(),

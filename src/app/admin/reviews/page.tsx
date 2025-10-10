@@ -46,11 +46,16 @@ function Reviews() {
   });
 
   return (
-    <PageLayout title="Reviews" description="Manage your reviews." actions={<ReviewFilter />} hasMore={hasMore}>
+    <PageLayout
+      title="Reviews"
+      description="Manage your reviews."
+      actions={<ReviewFilter />}
+      hasMore={hasMore}
+    >
       <Table>
         <TableHeader>
           <TableRow>
-            {/* <TableHead>Fullname</TableHead> */}
+            <TableHead>Fullname</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Rating</TableHead>
@@ -62,16 +67,21 @@ function Reviews() {
           {!isPending &&
             data?.map((review) => (
               <TableRow className="*:py-2" key={review.id}>
-                {/* <TableCell className="font-medium truncate capitalize">{review.user.full_name}</TableCell> */}
+                <TableCell className="font-medium truncate capitalize">
+                  {review?.full_name || "Guest"}
+                </TableCell>
                 <TableCell>
-                  <Badge className="capitalize" variant="outline">
-                    {review.approved === 1 ? "Approved" : "Pending"}
+                  <Badge
+                    className="capitalize"
+                    variant={review.approved ? "default" : "destructive"}
+                  >
+                    {review.approved ? "Approved" : "Pending"}
                   </Badge>
                 </TableCell>
                 <TableCell>{review.product.name}</TableCell>
                 <TableCell>{review.overall_rating}</TableCell>
                 <TableCell className="w-20">
-                  <ReviewActions id={review.id} isApproved={review.approved === 1} />
+                  <ReviewActions id={review.id} isApproved={review.approved} />
                 </TableCell>
               </TableRow>
             ))}

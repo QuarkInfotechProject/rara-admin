@@ -56,7 +56,7 @@ const blogReportSchema = baseSchema.extend({
 
 const productCategorySchema = z.object({
   id: z.number().optional(),
-  category_name: z.string(),
+  name: z.string(),
   slug: zodSlug,
   status: z.enum(["active", "inactive"]).default("active"),
   description: z.string(),

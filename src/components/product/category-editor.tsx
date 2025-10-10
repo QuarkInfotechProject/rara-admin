@@ -26,10 +26,7 @@ interface Props {
 function CategoryEditor({ initialData, edit }: Props) {
   const form = useForm<z.infer<typeof productCategorySchema>>({
     resolver: zodResolver(productCategorySchema),
-    defaultValues: {
-      ...initialData,
-      status: initialData?.status || "active",
-    },
+    defaultValues: initialData,
   });
   const description = form.watch("description");
   const { isSubmitting } = form.formState;
@@ -42,7 +39,7 @@ function CategoryEditor({ initialData, edit }: Props) {
         data
       );
       await queryClient.invalidateQueries({
-        queryKey: ["product-categories"],
+        queryKey: ["blog-categories"],
       });
       !edit && router.push("/admin/product/category");
       toast.success("Category updated successfully");
@@ -57,7 +54,7 @@ function CategoryEditor({ initialData, edit }: Props) {
         <EditorCard title="Category Details">
           <FormField
             control={form.control}
-            name="category_name"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
@@ -75,13 +72,7 @@ function CategoryEditor({ initialData, edit }: Props) {
               <FormItem>
                 <FormLabel>Slug</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="slug"
-                    {...field}
-                    onChange={(e) =>
-                      field.onChange(sanitizeSlug(e.target.value))
-                    }
-                  />
+                  <Input placeholder="slug" {...field} onChange={(e) => field.onChange(sanitizeSlug(e.target.value))} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -74,7 +74,6 @@ function convertToFormData(data: FormSchema): FormData {
     "related_package",
     "nearby_homestay",
     "tags",
-    "category",
     "included",
     "related_blogs",
     "amenity",
@@ -104,6 +103,11 @@ function convertToFormData(data: FormSchema): FormData {
         }
       }
     });
+  }
+
+  // Handle category as single value
+  if (data.category !== null && data.category !== undefined) {
+    formData.append("category", String(data.category));
   }
 
   // Handle overview object specially
@@ -139,8 +143,13 @@ function convertToFormData(data: FormSchema): FormData {
 
     if (value === null || value === undefined) return;
 
-    // Skip dossiers, array fields, and overview since we handled them above
-    if (key === "dossiers" || key === "overview" || arrayFields.includes(key)) {
+    // Skip dossiers, array fields, category, and overview since we handled them above
+    if (
+      key === "dossiers" ||
+      key === "overview" ||
+      key === "category" ||
+      arrayFields.includes(key)
+    ) {
       return;
     }
 
@@ -193,6 +202,21 @@ function safeNumberArray(value: any): number[] {
   return [];
 }
 
+// Helper function to safely convert category value to number
+function safeCategoryNumber(value: any): number | null {
+  if (!value) return null;
+
+  // Handle object with id property
+  if (typeof value === "object" && value !== null && "id" in value) {
+    const num = Number(value.id);
+    return isNaN(num) ? null : num;
+  }
+
+  // Handle direct numbers or string numbers
+  const num = Number(value);
+  return isNaN(num) ? null : num;
+}
+
 // Helper function to process initial data
 function processInitialData(initialData: any) {
   if (!initialData) return null;
@@ -218,12 +242,14 @@ function processInitialData(initialData: any) {
   processed.related_package = safeNumberArray(processed.related_package);
   processed.nearby_homestay = safeNumberArray(processed.nearby_homestay);
   processed.tags = safeNumberArray(processed.tags);
-  processed.category = safeNumberArray(processed.category);
   processed.included = safeNumberArray(processed.included);
   processed.related_blogs = safeNumberArray(processed.related_blogs);
   processed.amenity = safeNumberArray(processed.amenity);
   processed.excluded = safeNumberArray(processed.excluded);
   processed.what_to_bring = safeNumberArray(processed.what_to_bring);
+
+  // Process category as single value
+  processed.category = safeCategoryNumber(processed.category);
 
   // Ensure numeric fields are properly converted
   processed.cornerstone = Number(processed.cornerstone) || 0;
@@ -265,7 +291,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
       related_circuit: [],
       dossiers: [],
       tags: [],
-      category: [],
+      category: null,
       included: [],
       related_blogs: [],
       amenity: [],

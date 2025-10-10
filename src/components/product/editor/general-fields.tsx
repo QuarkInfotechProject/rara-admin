@@ -32,7 +32,6 @@ function GeneralFields({ productType }: GeneralFieldsProps) {
   return (
     <div className="editor-grid">
       <EditorCard title="Basic">
-        {/* Category field is hidden and automatically set based on productType */}
         <FormField
           control={form.control}
           name="type"

@@ -4,14 +4,11 @@ export interface Review {
   user_id: number;
   overall_rating: string;
   public_review: string;
-  approved: number;
+  approved: boolean;
+  full_name: string;
   product: {
     id: number;
     name: string;
-  };
-  user: {
-    id: number;
-    full_name: string;
   };
 }
 
@@ -29,13 +26,10 @@ export type ReviewDetail = {
   reply_to_public_review: null | string;
   created_at: string;
   updated_at: string;
-  approved: number;
+  approved: boolean;
+  full_name: string;
   product: {
     id: number;
     name: string;
-  };
-  user: {
-    id: number;
-    full_name: string;
   };
 };

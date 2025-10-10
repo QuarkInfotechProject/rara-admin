@@ -2,8 +2,8 @@
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import CategoryActions from "@/components/product/category-actions";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
@@ -15,38 +15,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CategoryApiResponse } from "@/types/category.types";
 import { useQuery } from "@tanstack/react-query";
-import CategoryActions from "@/components/product/category-actions";
 
-function Category() {
+interface Meta {
+  id?: number;
+  entity_type: string;
+  entity_id: number;
+  meta_title?: string;
+  meta_keywords?: string;
+  meta_description?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  status: string;
+  meta: Meta;
+}
+
+interface ApiResponse {
+  code: number;
+  message: string;
+  data: {
+    current_page: number;
+    data: Category[];
+    last_page: number;
+    total: number;
+  };
+}
+
+function Categories() {
   const [hasMore, setHasMore] = useState(false);
-  const searchParams = useSearchParams();
-  const page = Number(searchParams.get("page")) ?? 1;
-  const search = searchParams.get("search");
 
   const { data, isPending } = useQuery({
-    queryKey: ["categories", page, search],
+    queryKey: ["product-categories"],
     queryFn: async () => {
-      const { data } = await axios.get<CategoryApiResponse>(
-        `/api/category/lists`,
-        {
-          params: {
-            page,
-            ...(search && { name: search }),
-          },
-        }
-      );
-      const categories = data.data.data;
+      const { data } = await axios.get<ApiResponse>(`/api/category/lists`);
       setHasMore(data.data.current_page < data.data.last_page);
-      return categories;
+      return data.data.data;
     },
     gcTime: 0,
   });
 
   return (
     <PageLayout
-      title="Categories"
+      title="Product Categories"
       description="Manage your post categories."
       actions={
         <Link href="/admin/product/category/new">
@@ -63,30 +80,16 @@ function Category() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Slug</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {isPending && <LoadingSkeletion columns={4} />}
+          {isPending && <LoadingSkeletion columns={3} />}
           {!isPending &&
             data?.map((category) => (
               <TableRow className="*:py-2" key={category.id}>
-                <TableCell className="font-medium">
-                  {category.category_name}
-                </TableCell>
+                <TableCell className="font-medium">{category.name}</TableCell>
                 <TableCell>{category.slug}</TableCell>
-                <TableCell>
-                  <span
-                    className={`capitalize ${
-                      category.status === "active"
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {category.status}
-                  </span>
-                </TableCell>
                 <TableCell className="w-20">
                   <CategoryActions id={category.id} />
                 </TableCell>
@@ -98,4 +101,4 @@ function Category() {
   );
 }
 
-export default Category;
+export default Categories;

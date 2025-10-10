@@ -50,7 +50,7 @@ export interface BlogCategory {
 
 export interface ProductCategoryAPIResponse {
   id: number;
-  category_name: string;
+  name: string;
   slug: string;
   description: string;
   status: "active" | "inactive";
@@ -62,7 +62,7 @@ export interface ProductCategoryAPIResponse {
 
 export interface ProductCategory {
   id: number;
-  category_name: string;
+  name: string;
   slug: string;
   status: "active" | "inactive";
   description: string;
@@ -77,7 +77,7 @@ export interface PaginatedBlogResponse {
   display_homepage: string;
   title: string;
   slug: string;
-  category_name: string;
+  name: string;
   admin_user_name: string;
   created_at: string;
 }

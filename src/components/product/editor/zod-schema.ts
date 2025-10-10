@@ -171,7 +171,10 @@ const baseSchema = z.object({
     })
   ),
   tags: z.array(z.coerce.number()),
-  category: z.array(z.coerce.number()),
+  category: z.coerce
+    .number({ message: "Select a valid category" })
+    .nullable()
+    .optional(),
   meta: z.object({ metaTitle, keywords, metaDescription }),
   included: z.array(z.coerce.number({ message: "Select a valid value" })),
   related_blogs: z.array(z.coerce.number({ message: "Select a blog" })),

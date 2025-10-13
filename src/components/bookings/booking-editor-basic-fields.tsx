@@ -61,7 +61,7 @@ function BookingEditorBasicFields() {
           </FormItem>
         )}
       />
-      <FormField
+      {/* <FormField
         control={form.control}
         name="ceo"
         render={({ field }) => (
@@ -73,8 +73,8 @@ function BookingEditorBasicFields() {
             <FormMessage />
           </FormItem>
         )}
-      />
-      <FormField
+      /> */}
+      {/* <FormField
         control={form.control}
         name="group_name"
         render={({ field }) => (
@@ -86,8 +86,8 @@ function BookingEditorBasicFields() {
             <FormMessage />
           </FormItem>
         )}
-      />
-      <FormField
+      /> */}
+      {/* <FormField
         control={form.control}
         name="room_required"
         render={({ field }) => (
@@ -99,7 +99,7 @@ function BookingEditorBasicFields() {
             <FormMessage />
           </FormItem>
         )}
-      />
+      /> */}
     </EditorCard>
   );
 }

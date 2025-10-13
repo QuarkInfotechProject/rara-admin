@@ -36,7 +36,7 @@ function BookingEditorGuestFields() {
           </FormItem>
         )}
       />
-      <FormField
+      {/* <FormField
         control={form.control}
         name="infant"
         render={({ field }) => (
@@ -48,7 +48,7 @@ function BookingEditorGuestFields() {
             <FormMessage />
           </FormItem>
         )}
-      />
+      /> */}
     </EditorCard>
   );
 }

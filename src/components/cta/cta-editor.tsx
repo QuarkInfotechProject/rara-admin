@@ -4,7 +4,14 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { queryClient } from "@/lib/context/react-query-context";
@@ -52,7 +59,11 @@ function CTAEditor({ initialData, readonly }: Props) {
               <FormItem>
                 <FormLabel>Fullname</FormLabel>
                 <FormControl>
-                  <Input placeholder="John wick" disabled={readonly} {...field} />
+                  <Input
+                    placeholder="John wick"
+                    disabled={readonly}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -65,7 +76,12 @@ function CTAEditor({ initialData, readonly }: Props) {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="info@example.com" disabled={readonly} {...field} />
+                  <Input
+                    type="email"
+                    placeholder="info@example.com"
+                    disabled={readonly}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -78,25 +94,36 @@ function CTAEditor({ initialData, readonly }: Props) {
               <FormItem>
                 <FormLabel>Phone number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+1123456789" disabled={readonly} {...field} />
+                  <Input
+                    placeholder="+1123456789"
+                    disabled={readonly}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <CategorySelector onValueChange={field.onChange} value={field.value} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+          <div className="hidden">
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <CategorySelector
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="description"
@@ -104,7 +131,12 @@ function CTAEditor({ initialData, readonly }: Props) {
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Textarea rows={8} disabled={readonly} {...field} placeholder="Write your description here" />
+                  <Textarea
+                    rows={8}
+                    disabled={readonly}
+                    {...field}
+                    placeholder="Write your description here"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -112,7 +144,11 @@ function CTAEditor({ initialData, readonly }: Props) {
           />
         </EditorCard>
         {!readonly && (
-          <Button className="w-40" disabled={isSubmitting} loading={isSubmitting}>
+          <Button
+            className="w-40"
+            disabled={isSubmitting}
+            loading={isSubmitting}
+          >
             Publish
           </Button>
         )}

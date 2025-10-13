@@ -1,7 +1,20 @@
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import DatePicker from "../date-picker";
 import EditorCard from "../editor-card";
 import { BookingEditorSchema } from "./zod-schema";
@@ -25,7 +38,7 @@ function BookingEditorPublishControls() {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="booking">Booking</SelectItem>
+                <SelectItem value="custom">Custom</SelectItem>
                 <SelectItem value="inquiry">Inquiry</SelectItem>
               </SelectContent>
             </Select>
@@ -33,6 +46,7 @@ function BookingEditorPublishControls() {
           </FormItem>
         )}
       />
+
       <FormField
         control={form.control}
         name="status"
@@ -42,7 +56,7 @@ function BookingEditorPublishControls() {
             <Select value={String(field.value)} onValueChange={field.onChange}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Select status" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -58,6 +72,7 @@ function BookingEditorPublishControls() {
           </FormItem>
         )}
       />
+
       <FormField
         control={form.control}
         name="from_date"
@@ -65,12 +80,16 @@ function BookingEditorPublishControls() {
           <FormItem>
             <FormLabel>From Date</FormLabel>
             <FormControl>
-              <DatePicker selected={field.value} onSelect={(date) => field.onChange(date?.toISOString())} />
+              <DatePicker
+                selected={field.value}
+                onSelect={(date) => field.onChange(date?.toISOString())}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
+
       <FormField
         control={form.control}
         name="to_date"
@@ -78,12 +97,40 @@ function BookingEditorPublishControls() {
           <FormItem>
             <FormLabel>To Date</FormLabel>
             <FormControl>
-              <DatePicker selected={field.value} onSelect={(date) => field.onChange(date?.toISOString())} />
+              <DatePicker
+                selected={field.value}
+                onSelect={(date) => field.onChange(date?.toISOString())}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
         )}
       />
+
+      <FormField
+        control={form.control}
+        name="budget_range"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Budget Range</FormLabel>
+            <FormControl>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  $
+                </span>
+                <Input
+                  placeholder="e.g., 1000-1500"
+                  {...field}
+                  value={field.value ?? ""}
+                  className="pl-7"
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       <Button className="w-full" disabled={isSubmitting} loading={isSubmitting}>
         Publish
       </Button>

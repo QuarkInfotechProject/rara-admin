@@ -51,12 +51,12 @@ function CTAs() {
       actions={
         <>
           <CTAFilter />
-          <Link href="/admin/cta/new">
+          {/* <Link href="/admin/cta/new">
             <Button size="sm" className="gap-1">
               <PlusCircle size={16} />
               <span className="sr-only sm:not-sr-only">Add CTA</span>
             </Button>
-          </Link>
+          </Link> */}
         </>
       }
       hasMore={hasMore}

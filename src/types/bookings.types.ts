@@ -1,20 +1,42 @@
 export interface Booking {
   id: number;
-  agent_name: string;
+  fullname: string;
   product_name: string;
   product_type: string;
-  type: "booking" | "inquiry";
-  has_responded: 0;
+  type: "custom" | "inquiry";
   status: string;
   from_date: string;
-  to_date: string;
+  to_date: string | null;
+  has_responded: 0 | 1;
   user: null | string;
-  note: null | string;
-  additional_note: null | string;
   additional_products: Array<{
     id: number;
     name: string;
   }>;
+}
+
+export interface BookingPaginationResponse {
+  code: number;
+  message: string;
+  data: {
+    current_page: number;
+    data: Booking[];
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: Array<{
+      url: string | null;
+      label: string;
+      active: boolean;
+    }>;
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+  };
 }
 
 export interface BookingDetail {

@@ -1,14 +1,11 @@
 "use client";
 import axios from "axios";
-import { PlusCircle } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import BookingActions from "@/components/bookings/booking-actions";
 import BookingFilter from "@/components/bookings/booking-filter";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Booking } from "@/types/bookings.types";
 import { PaginatedResponse } from "@/types/index.types";
@@ -67,12 +64,12 @@ function Bookings() {
       actions={
         <>
           <BookingFilter />
-          <Link href="/admin/bookings/new">
+          {/* <Link href="/admin/bookings/new">
             <Button size="sm" className="gap-1">
               <PlusCircle size={16} />
               <span className="sr-only sm:not-sr-only">Add Booking</span>
             </Button>
-          </Link>
+          </Link> */}
         </>
       }
       hasMore={hasMore}
@@ -81,9 +78,11 @@ function Bookings() {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
+            <TableHead>Client</TableHead>
+            <TableHead>Product</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Type</TableHead>
+            <TableHead>Product Type</TableHead>
+            <TableHead>Booking Type</TableHead>
             <TableHead>From</TableHead>
             <TableHead>To</TableHead>
             <TableHead>Responded</TableHead>
@@ -94,18 +93,32 @@ function Bookings() {
           {isPending && <LoadingSkeletion columns={7} />}
           {!isPending &&
             data?.map((booking) => (
-              <TableRow className={cn("*:py-2", findColor(booking.from_date))} key={booking.id}>
-                <TableCell className="font-medium truncate">{booking.product_name}</TableCell>
+              <TableRow
+                className={cn("*:py-2", findColor(booking.from_date))}
+                key={booking.id}
+              >
+                <TableCell className="font-medium truncate">
+                  {booking.fullname}
+                </TableCell>
+                <TableCell className="font-medium truncate">
+                  {booking.product_name}
+                </TableCell>
                 <TableCell>
                   <Badge className="capitalize bg-background" variant="outline">
                     {booking.status}
                   </Badge>
                 </TableCell>
-                <TableCell className="capitalize">{booking.product_type}</TableCell>
+                <TableCell className="capitalize">
+                  {booking.product_type}
+                </TableCell>
+                <TableCell className="capitalize">{booking.type}</TableCell>
                 <TableCell>{booking.from_date}</TableCell>
                 <TableCell>{booking.to_date}</TableCell>
                 <TableCell className="w-11">
-                  <HasRespondedToggle id={booking.id} hasResponded={booking.has_responded === 0} />
+                  <HasRespondedToggle
+                    id={booking.id}
+                    hasResponded={booking.has_responded === 0}
+                  />
                 </TableCell>
                 <TableCell className="w-12">
                   <BookingActions id={booking.id} />

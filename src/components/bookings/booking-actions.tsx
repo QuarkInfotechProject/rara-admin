@@ -69,14 +69,14 @@ function BookingActions({ id }: Props) {
               <DropdownMenuItem data-value="no-show">No Show</DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuItem onClick={() => setShowBookingServiceOrder(true)}>View Service Order</DropdownMenuItem>
+          {/* <DropdownMenuItem onClick={() => setShowBookingServiceOrder(true)}>View Service Order</DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
-      <DownloadBookingServiceOrder
+      {/* <DownloadBookingServiceOrder
         open={showBookingServiceOrder}
         onOpenChange={setShowBookingServiceOrder}
         bookingId={id}
-      />
+      /> */}
     </div>
   );
 }

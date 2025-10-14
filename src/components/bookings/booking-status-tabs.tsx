@@ -22,9 +22,6 @@ function BookingStatusTabs() {
       <Link className={cn(filter.product_type === "activities" && selectedClass)} href="?product_type=activities">
         Activities
       </Link>
-      <Link className={cn(filter.product_type === "circuit" && selectedClass)} href="?product_type=circuit">
-        Car Rental
-      </Link>
     </div>
   );
 }

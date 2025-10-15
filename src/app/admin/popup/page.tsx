@@ -1,6 +1,7 @@
 "use client";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import PageLayout from "@/components/page-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,100 +13,114 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import FAQActions from "@/components/faqs/faq-actions";
+import PopupActions from "./components/popup-actions";
 
 interface Popup {
   id: number;
-  title: string;
-  status: "Active" | "Inactive" | "Scheduled";
+  name: string;
+  url: string;
+  status: 0 | 1;
+  popupImage: number[];
   publishedDate: string;
+  updated_at: string;
 }
 
-const staticPopups: Popup[] = [
-  {
-    id: 1,
-    title: "Summer Sale 2024: Up to 50% Off on All Tours",
-    status: "Active",
-    publishedDate: "2024-06-01",
-  },
-  {
-    id: 2,
-    title: "New Himalayan Trekking Routes Available Now",
-    status: "Active",
-    publishedDate: "2024-05-15",
-  },
-  {
-    id: 3,
-    title: "Monsoon Special: Book Community Homestays",
-    status: "Scheduled",
-    publishedDate: "2024-07-01",
-  },
-  {
-    id: 4,
-    title: "Early Bird Discount: Kathmandu Valley Tours",
-    status: "Active",
-    publishedDate: "2024-04-20",
-  },
-  {
-    id: 5,
-    title: "Winter Adventure Package: Limited Slots Available",
-    status: "Inactive",
-    publishedDate: "2024-01-10",
-  },
-  {
-    id: 6,
-    title: "Cultural Festival Tours: Experience Nepali Traditions",
-    status: "Active",
-    publishedDate: "2024-05-01",
-  },
-  {
-    id: 7,
-    title: "Newsletter Signup: Get 10% Off Your First Booking",
-    status: "Inactive",
-    publishedDate: "2024-03-15",
-  },
-];
+interface ApiResponse {
+  code: number;
+  message: string;
+  data: Popup[];
+}
 
 function HomePopups() {
+  const [popups, setPopups] = useState<Popup[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPopups = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/popup");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch popups");
+        }
+
+        const result: ApiResponse = await response.json();
+
+        if (result.code === 0) {
+          setPopups(result.data);
+        } else {
+          throw new Error(result.message || "Failed to fetch popups");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopups();
+  }, []);
+
+  const getStatusBadge = (status: 0 | 1) => {
+    return status === 1 ? "Active" : "Inactive";
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
     <PageLayout
       title="Home Popups"
-      description="Manage your homepage popup notifications."
-      actions={
-        <Link href="/admin/popup/new">
-          <Button size="sm" className="gap-1">
-            <PlusCircle size={16} />
-            <span className="sr-only sm:not-sr-only">Add Popup</span>
-          </Button>
-        </Link>
-      }
+      description="Manage your homepage popup notifications."      
     >
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Published Date</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {staticPopups.map((popup) => (
-            <TableRow className="py-2" key={popup.id}>
-              <TableCell className="font-medium">{popup.title}</TableCell>
-              <TableCell>
-                <Badge className="capitalize" variant="outline">
-                  {popup.status}
-                </Badge>
-              </TableCell>
-              <TableCell>{popup.publishedDate}</TableCell>
-              <TableCell className="w-20">
-                <FAQActions id={popup.id} />
-              </TableCell>
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-muted-foreground">Loading popups...</p>
+        </div>
+      ) : error ? (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-destructive">Error: {error}</p>
+        </div>
+      ) : popups.length === 0 ? (
+        <div className="flex items-center justify-center py-8">
+          <p className="text-muted-foreground">No popups found.</p>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Popup</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Published Date</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {popups.map((popup) => (
+              <TableRow className="py-2" key={popup.id}>
+                <TableCell className="font-medium">{popup.name}</TableCell>
+                <TableCell>
+                  <Badge className="capitalize" variant="outline">
+                    {getStatusBadge(popup.status)}
+                  </Badge>
+                </TableCell>
+                <TableCell>{formatDate(popup.publishedDate)}</TableCell>
+                <TableCell className="w-20">
+                  <PopupActions id={popup.id} url={popup.url} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
     </PageLayout>
   );
 }

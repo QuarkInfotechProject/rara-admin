@@ -5,7 +5,7 @@ import { ReviewDetail } from "@/types/reviews.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ReviewEditorOtherFields from "./review-editor-other-fields";
 import ReviewEditorRatings from "./review-editor-ratings";
-import ReviewEditorReply from "./review-editor-reply";
+// import ReviewEditorReply from "./review-editor-reply";
 import { FormData, formSchema } from "./zod-schema";
 
 interface Props {
@@ -25,7 +25,7 @@ function ReviewEditor({ initialData, edit }: Props) {
       <form className="editor-grid-2">
         <div>
           <ReviewEditorOtherFields />
-          <ReviewEditorReply />
+          {/* <ReviewEditorReply /> */}
         </div>
         <div className="md:sticky top-4">
           <ReviewEditorRatings />

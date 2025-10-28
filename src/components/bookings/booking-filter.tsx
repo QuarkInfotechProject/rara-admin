@@ -45,7 +45,7 @@ function BookingFilter() {
               <FormItem>
                 <FormLabel>Product Name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Homestay" />
+                  <Input {...field} placeholder="Trek" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

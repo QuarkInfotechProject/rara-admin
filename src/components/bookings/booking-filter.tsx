@@ -115,20 +115,7 @@ function BookingFilter() {
                 <FormMessage />
               </FormItem>
             )}
-          />
-          <FormField
-            control={form.control}
-            name="agent"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Agent</FormLabel>
-                <FormControl>
-                  <AgentSelector value={field.value ?? "all"} onValueChange={field.onChange} includeAll />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          />          
           <Button size="sm">Filter</Button>
         </form>
       </Form>

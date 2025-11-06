@@ -1,18 +1,14 @@
 [
   {
-    "name": "Homestay",
-    "slug": "homestay"
+    "name": "Trek",
+    "slug": "trek"
   },
   {
-    "name": "Package",
-    "slug": "package"
+    "name": "Tour",
+    "slug": "tour"
   },
   {
-    "name": "Experience",
-    "slug": "experience"
-  },
-  {
-    "name": "Circuit",
-    "slug": "circuit"
+    "name": "Activities",
+    "slug": "activities"
   }
 ]

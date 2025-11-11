@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { ZodSchema } from "zod";
 import { Form } from "@/components/ui/form";
@@ -32,7 +32,7 @@ export type ProductType = "trek" | "tour" | "activities";
 interface Props {
   initialData?: any;
   edit?: boolean;
-  productType: ProductType; // Make this required
+  productType: ProductType;
 }
 
 export type FormSchema = Product;
@@ -66,7 +66,6 @@ function getRedirectPath(productType: ProductType) {
 function convertToFormData(data: FormSchema): FormData {
   const formData = new FormData();
 
-  // Define array fields that should always be included in FormData
   const arrayFields = [
     "related_circuit",
     "related_homestay",
@@ -81,40 +80,31 @@ function convertToFormData(data: FormSchema): FormData {
     "what_to_bring",
   ];
 
-  // Handle dossiers specially
   if (data.dossiers && Array.isArray(data.dossiers)) {
-    data.dossiers.forEach((dossier, index) => {
-      // Handle content
+    data.dossiers.forEach((dossier) => {
       if (dossier.content) {
         formData.append(`dossiers[content]`, dossier.content);
       }
 
-      // Handle pdf_file based on type
       if (dossier.pdf_file) {
         if (dossier.pdf_file instanceof File) {
-          // New file upload
           formData.append(`dossiers[pdf_file]`, dossier.pdf_file);
         } else if (typeof dossier.pdf_file === "string") {
-          // Existing URL - keep as is
           formData.append(`dossiers[pdf_file]`, dossier.pdf_file);
         } else if (typeof dossier.pdf_file === "number") {
-          // File ID
           formData.append(`dossiers[pdf_file]`, String(dossier.pdf_file));
         }
       }
     });
   }
 
-  // Handle category as single value
   if (data.category !== null && data.category !== undefined) {
     formData.append("category", String(data.category));
   }
 
-  // Handle overview object specially
   if (data.overview && typeof data.overview === "object") {
     Object.entries(data.overview).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        // Convert group_size to number if it's a string
         if (key === "group_size" && typeof value === "string") {
           const numValue = Number(value) || 0;
           formData.append(`overview[${key}]`, String(numValue));
@@ -125,15 +115,13 @@ function convertToFormData(data: FormSchema): FormData {
     });
   }
 
-  // Handle array fields specially to ensure they're always included
   arrayFields.forEach((fieldName) => {
     const fieldValue = data[fieldName as keyof FormSchema];
     if (fieldValue && Array.isArray(fieldValue) && fieldValue.length > 0) {
-      fieldValue.forEach((item, index) => {
-        formData.append(`${fieldName}[${index}]`, String(item));
+      fieldValue.forEach((item) => {
+        formData.append(`${fieldName}[]`, String(item));
       });
     } else {
-      // Include empty array indicator for backend
       formData.append(`${fieldName}[]`, "");
     }
   });
@@ -143,7 +131,6 @@ function convertToFormData(data: FormSchema): FormData {
 
     if (value === null || value === undefined) return;
 
-    // Skip dossiers, array fields, category, and overview since we handled them above
     if (
       key === "dossiers" ||
       key === "overview" ||
@@ -174,7 +161,6 @@ function convertToFormData(data: FormSchema): FormData {
     }
   };
 
-  // Process other fields
   (Object.keys(data) as (keyof FormSchema)[]).forEach((key) => {
     processValue(key as string, data[key]);
   });
@@ -182,18 +168,15 @@ function convertToFormData(data: FormSchema): FormData {
   return formData;
 }
 
-// Helper function to safely convert values to numbers
 function safeNumberArray(value: any): number[] {
   if (!value) return [];
   if (Array.isArray(value)) {
     return value
       .map((item) => {
-        // Handle objects with id property (like {id: 2, name: "Trek-85"})
         if (typeof item === "object" && item !== null && "id" in item) {
           const num = Number(item.id);
           return isNaN(num) ? null : num;
         }
-        // Handle direct numbers or string numbers
         const num = Number(item);
         return isNaN(num) ? null : num;
       })
@@ -202,28 +185,23 @@ function safeNumberArray(value: any): number[] {
   return [];
 }
 
-// Helper function to safely convert category value to number
 function safeCategoryNumber(value: any): number | null {
   if (!value) return null;
 
-  // Handle object with id property
   if (typeof value === "object" && value !== null && "id" in value) {
     const num = Number(value.id);
     return isNaN(num) ? null : num;
   }
 
-  // Handle direct numbers or string numbers
   const num = Number(value);
   return isNaN(num) ? null : num;
 }
 
-// Helper function to process initial data
 function processInitialData(initialData: any) {
   if (!initialData) return null;
 
   const processed = { ...initialData };
 
-  // Convert dossiers from object to array if needed
   if (processed.dossiers && !Array.isArray(processed.dossiers)) {
     processed.dossiers = [
       {
@@ -235,7 +213,6 @@ function processInitialData(initialData: any) {
     processed.dossiers = [];
   }
 
-  // Process array fields that might have similar issues
   processed.related_circuit = safeNumberArray(processed.related_circuit);
   processed.related_homestay = safeNumberArray(processed.related_homestay);
   processed.related_experience = safeNumberArray(processed.related_experience);
@@ -248,17 +225,14 @@ function processInitialData(initialData: any) {
   processed.excluded = safeNumberArray(processed.excluded);
   processed.what_to_bring = safeNumberArray(processed.what_to_bring);
 
-  // Process category as single value
   processed.category = safeCategoryNumber(processed.category);
 
-  // Ensure numeric fields are properly converted
   processed.cornerstone = Number(processed.cornerstone) || 0;
   processed.is_occupied = Number(processed.is_occupied) || 0;
   processed.display_homepage = Number(processed.display_homepage) || 0;
   processed.latitude = Number(processed.latitude) || 0;
   processed.longitude = Number(processed.longitude) || 0;
 
-  // Ensure overview is an object
   if (!processed.overview || typeof processed.overview !== "object") {
     processed.overview = {};
   }
@@ -266,22 +240,22 @@ function processInitialData(initialData: any) {
   return processed;
 }
 
-// Helper function to get default type based on product type
 function getDefaultType(
   productType: ProductType
 ): "trek" | "tour" | "activities" {
   return productType;
 }
 
-// Updated ProductEditor component with proper product type handling
 function ProductEditor({ initialData, edit, productType }: Props) {
   const [activeTab, setActiveTab] = useState("general");
   const [formSchema, setFormSchema] = useState<ZodSchema>(productSchema);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const autoSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const draftKeyRef = useRef<string>("");
 
-  // Process initial data to ensure proper format
   const getProcessedDefaultValues = () => {
-    // Base defaults with dynamic type based on productType
     const baseDefaults = {
       type: getDefaultType(productType),
       cornerstone: 0,
@@ -333,7 +307,6 @@ function ProductEditor({ initialData, edit, productType }: Props) {
     const result = {
       ...baseDefaults,
       ...processed,
-      // Ensure type matches productType even if initialData has different type
       type: getDefaultType(productType),
     };
 
@@ -348,6 +321,126 @@ function ProductEditor({ initialData, edit, productType }: Props) {
   const router = useRouter();
   const errors = form.formState.errors;
 
+  // Initialize draft key
+  useEffect(() => {
+    draftKeyRef.current = `product_draft_${productType}_${
+      initialData?.id || "new"
+    }`;
+  }, [productType, initialData?.id]);
+
+  // Load saved draft on mount
+  useEffect(() => {
+    const loadSavedDraft = async () => {
+      try {
+        // Try to load from sessionStorage first (fastest)
+        const savedDraft = sessionStorage.getItem(draftKeyRef.current);
+        if (savedDraft) {
+          const draftData = JSON.parse(savedDraft);
+          form.reset(draftData);
+          toast.success("Draft restored from last session");
+          return;
+        }
+
+        // If no sessionStorage, try localStorage as backup
+        const localDraft = localStorage.getItem(draftKeyRef.current);
+        if (localDraft) {
+          const draftData = JSON.parse(localDraft);
+          form.reset(draftData);
+          toast.success("Draft restored from storage");
+        }
+      } catch (err) {
+        console.error("Failed to load draft:", err);
+      }
+    };
+
+    loadSavedDraft();
+  }, []);
+
+  // Auto-save to localStorage/sessionStorage
+  const saveDraftLocally = (data: any) => {
+    try {
+      // Filter out File objects before saving
+      const serializableData: any = {};
+
+      Object.keys(data).forEach((key) => {
+        const value = data[key];
+
+        // Skip File objects
+        if (
+          value &&
+          typeof value === "object" &&
+          value.constructor.name === "File"
+        ) {
+          return;
+        }
+
+        if (Array.isArray(value)) {
+          serializableData[key] = value.filter(
+            (item) =>
+              !(
+                item &&
+                typeof item === "object" &&
+                item.constructor.name === "File"
+              )
+          );
+        } else if (typeof value === "object" && value !== null) {
+          serializableData[key] = Object.keys(value).reduce(
+            (obj: any, subKey) => {
+              const subValue = value[subKey];
+              if (
+                !(
+                  subValue &&
+                  typeof subValue === "object" &&
+                  subValue.constructor.name === "File"
+                )
+              ) {
+                obj[subKey] = subValue;
+              }
+              return obj;
+            },
+            {}
+          );
+        } else {
+          serializableData[key] = value;
+        }
+      });
+
+      sessionStorage.setItem(
+        draftKeyRef.current,
+        JSON.stringify(serializableData)
+      );
+      localStorage.setItem(
+        draftKeyRef.current,
+        JSON.stringify(serializableData)
+      );
+      setLastSaved(new Date());
+    } catch (err) {
+      console.error("Failed to save draft locally:", err);
+    }
+  };
+
+  // Setup auto-save intervals
+  useEffect(() => {
+    const subscription = form.watch((data: any) => {
+      // Save to local storage immediately
+      saveDraftLocally(data);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [form]);
+
+  // Clean up draft after successful submission
+  const clearDraft = () => {
+    try {
+      sessionStorage.removeItem(draftKeyRef.current);
+      localStorage.removeItem(draftKeyRef.current);
+    } catch (err) {
+      console.error("Failed to clear draft:", err);
+    }
+  };
+
   async function handleSubmit(data: FormSchema) {
     if (isSubmitting) {
       return;
@@ -356,12 +449,10 @@ function ProductEditor({ initialData, edit, productType }: Props) {
     setIsSubmitting(true);
 
     try {
-      // Validate overview object has proper structure
       if (!data.overview || typeof data.overview !== "object") {
         throw new Error("Overview data is required");
       }
 
-      // Ensure group_size is a number
       if (
         data.overview.group_size &&
         typeof data.overview.group_size === "string"
@@ -369,13 +460,11 @@ function ProductEditor({ initialData, edit, productType }: Props) {
         data.overview.group_size = Number(data.overview.group_size) || 0;
       }
 
-      // Get the appropriate API endpoints based on product type
       const endpoints = getApiEndpoints(productType);
       const endpoint = edit ? endpoints.update : endpoints.create;
 
       const formData = convertToFormData(data);
 
-      // If editing, add the product ID to formData
       if (edit && initialData?.id) {
         formData.append("id", String(initialData.id));
       }
@@ -386,11 +475,13 @@ function ProductEditor({ initialData, edit, productType }: Props) {
         },
       });
 
+      // Clear draft after successful submission
+      clearDraft();
+
       await queryClient.invalidateQueries({
         queryKey: ["products"],
       });
 
-      // Invalidate specific product type queries
       await queryClient.invalidateQueries({
         queryKey: [productType],
       });
@@ -526,6 +617,12 @@ function ProductEditor({ initialData, edit, productType }: Props) {
           </TabsContent>
         </Tabs>
         <div className="md:sticky top-4 flex flex-col gap-4 lg:gap-8">
+          <div className="text-sm text-gray-500">
+            {lastSaved && <p>Last saved: {lastSaved.toLocaleTimeString()}</p>}
+            {autoSaveEnabled && (
+              <p className="text-xs text-green-600">Auto-save enabled</p>
+            )}
+          </div>
           <PublishControls edit={edit} isSubmitting={isSubmitting} />
           <div>
             <BasicFields />

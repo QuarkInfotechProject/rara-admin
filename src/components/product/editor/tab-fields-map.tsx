@@ -6,6 +6,7 @@ const tabFieldsMap = {
     "tagline",
     "short_code",
     "youtube_link",
+    "category_details",
     "night",
     "original_price_usd",
     "discounted_price_usd",

@@ -266,6 +266,7 @@ function ProductEditor({ initialData, edit, productType }: Props) {
       dossiers: [],
       tags: [],
       category: null,
+      category_details: "this is category details",
       included: [],
       related_blogs: [],
       amenity: [],

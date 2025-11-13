@@ -188,9 +188,16 @@ function safeNumberArray(value: any): number[] {
 function safeCategoryNumber(value: any): number | null {
   if (!value) return null;
 
-  if (typeof value === "object" && value !== null && "id" in value) {
-    const num = Number(value.id);
-    return isNaN(num) ? null : num;
+  if (typeof value === "object" && value !== null) {
+    if ("category_detail" in value && value.category_detail?.id) {
+      const num = Number(value.category_detail.id);
+      return isNaN(num) ? null : num;
+    }
+
+    if ("id" in value) {
+      const num = Number(value.id);
+      return isNaN(num) ? null : num;
+    }
   }
 
   const num = Number(value);

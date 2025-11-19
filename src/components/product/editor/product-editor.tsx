@@ -30,7 +30,7 @@ import dynamic from "next/dynamic";
 
 const LocationFields = dynamic(() => import("./location-fields"), {
   ssr: false,
-  loading: () => <div>Loading map...</div>,
+  loading: () => <div>Loading ...</div>,
 });
 
 // Define product types

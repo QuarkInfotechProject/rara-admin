@@ -6,7 +6,12 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import CkEditor from "@/components/ck-editor";
 import EditorCard from "@/components/editor-card";
-import { FormField, FormItem, FormControl, FormMessage } from "@/components/ui/form";
+import {
+  FormField,
+  FormItem,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { FormSchema } from "./product-editor";
 
 const GEOAPIFY_API_KEY = process.env.NEXT_PUBLIC_GEOAPIFY_KEY!;
@@ -27,61 +32,78 @@ export default function LocationFields() {
   const [query, setQuery] = useState(location || "");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Ensure client-side rendering
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // --- Init Map (only once) ---
   useEffect(() => {
-    if (!mapContainerRef.current || mapInitializedRef.current) return;
+    if (!isClient || !mapContainerRef.current || mapInitializedRef.current)
+      return;
 
-    mapInitializedRef.current = true;
+    // Small delay to ensure DOM is fully ready
+    const timer = setTimeout(() => {
+      if (!mapContainerRef.current) return;
 
-    const initialLat = lat ? Number(lat) : 27.7172;
-    const initialLng = lng ? Number(lng) : 85.324;
+      mapInitializedRef.current = true;
 
-    mapRef.current = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: `https://maps.geoapify.com/v1/styles/osm-carto/style.json?apiKey=${GEOAPIFY_API_KEY}`,
-      center: [initialLng, initialLat],
-      zoom: 12,
-    } as maplibregl.MapOptions);
+      const initialLat = lat ? Number(lat) : 27.7172;
+      const initialLng = lng ? Number(lng) : 85.324;
 
-    mapRef.current.on("load", () => {
-      if (
-        lat !== null &&
-        lat !== undefined &&
-        lng !== null &&
-        lng !== undefined
-      ) {
-        markerRef.current = new maplibregl.Marker({ color: "#ff0000" })
-          .setLngLat([Number(lng), Number(lat)])
-          .addTo(mapRef.current!);
+      try {
+        mapRef.current = new maplibregl.Map({
+          container: mapContainerRef.current,
+          style: `https://maps.geoapify.com/v1/styles/osm-carto/style.json?apiKey=${GEOAPIFY_API_KEY}`,
+          center: [initialLng, initialLat],
+          zoom: 12,
+        } as maplibregl.MapOptions);
+
+        mapRef.current.on("load", () => {
+          if (
+            lat !== null &&
+            lat !== undefined &&
+            lng !== null &&
+            lng !== undefined
+          ) {
+            markerRef.current = new maplibregl.Marker({ color: "#ff0000" })
+              .setLngLat([Number(lng), Number(lat)])
+              .addTo(mapRef.current!);
+          }
+        });
+
+        mapRef.current.on("click", (e) => {
+          const { lng: clickLng, lat: clickLat } = e.lngLat;
+
+          const roundedLat = Math.round(clickLat * 10000) / 10000;
+          const roundedLng = Math.round(clickLng * 10000) / 10000;
+
+          setValue("latitude", roundedLat);
+          setValue("longitude", roundedLng);
+          setValue("location", "");
+          setQuery("");
+
+          if (!markerRef.current) {
+            markerRef.current = new maplibregl.Marker({ color: "#ff0000" })
+              .setLngLat([roundedLng, roundedLat])
+              .addTo(mapRef.current!);
+          } else {
+            markerRef.current.setLngLat([roundedLng, roundedLat]);
+          }
+        });
+      } catch (error) {
+        console.error("Error initializing map:", error);
+        mapInitializedRef.current = false;
       }
-    });
-
-    mapRef.current.on("click", (e) => {
-      const { lng: clickLng, lat: clickLat } = e.lngLat;
-
-      // Round to 4 decimal places
-      const roundedLat = Math.round(clickLat * 10000) / 10000;
-      const roundedLng = Math.round(clickLng * 10000) / 10000;
-
-      setValue("latitude", roundedLat);
-      setValue("longitude", roundedLng);
-      setValue("location", "");
-      setQuery("");
-
-      if (!markerRef.current) {
-        markerRef.current = new maplibregl.Marker({ color: "#ff0000" })
-          .setLngLat([roundedLng, roundedLat])
-          .addTo(mapRef.current!);
-      } else {
-        markerRef.current.setLngLat([roundedLng, roundedLat]);
-      }
-    });
+    }, 100);
 
     return () => {
+      clearTimeout(timer);
       mapInitializedRef.current = false;
     };
-  }, []);
+  }, [isClient]);
 
   // Update marker when lat/lng change from form
   useEffect(() => {
@@ -98,7 +120,6 @@ export default function LocationFields() {
       markerRef.current.setLngLat([numLng, numLat]);
     }
 
-    // Pan to marker without flying (to avoid jarring movement)
     if (mapRef.current.isStyleLoaded()) {
       mapRef.current.panTo([numLng, numLat], { duration: 0 });
     }
@@ -140,7 +161,6 @@ export default function LocationFields() {
 
         const res = await fetch(url);
 
-        // Log response status and status text
         console.log("Geoapify Response Status:", res.status, res.statusText);
 
         if (!res.ok) {
@@ -172,7 +192,6 @@ export default function LocationFields() {
       const rawLat = item.properties.lat;
       const rawLng = item.properties.lon;
 
-      // Extract just the location name (remove long formatted address)
       const formatted = item.properties.formatted || "";
       const locationName =
         item.properties.name || formatted.split(",")[0] || formatted;
@@ -200,7 +219,6 @@ export default function LocationFields() {
         location: locationName,
       });
 
-      // Set form values using react-hook-form - send as NUMBERS like before
       setValue("latitude", selectedLat);
       setValue("longitude", selectedLng);
       setValue("location", locationName);
@@ -231,6 +249,10 @@ export default function LocationFields() {
 
   const form = useFormContext<FormSchema>();
   const howToGet = form.watch("how_to_get");
+
+  if (!isClient) {
+    return <div className="space-y-4">Loading...</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -302,6 +324,7 @@ export default function LocationFields() {
       <div
         ref={mapContainerRef}
         className="w-full h-[350px] rounded-md overflow-hidden shadow-lg transition-shadow hover:shadow-xl"
+        style={{ minHeight: "350px" }}
       />
 
       <EditorCard title="How to get here">

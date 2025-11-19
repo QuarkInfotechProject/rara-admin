@@ -50,7 +50,7 @@ function HeaderMenu() {
         <DropdownMenuItem asChild>
           <Link href="/admin/change-password">Change password</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handlePurgeCache}>Purge Cache</DropdownMenuItem>
+        {/* <DropdownMenuItem onClick={handlePurgeCache}>Purge Cache</DropdownMenuItem> */}
         <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

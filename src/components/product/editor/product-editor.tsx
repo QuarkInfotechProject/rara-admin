@@ -15,7 +15,7 @@ import FAQSFields from "./faqs-fields";
 import Files from "./files";
 import GeneralFields from "./general-fields";
 import ItineraryFields from "./itinerary-fields";
-import LocationFields from "./location-fields";
+// import LocationFields from "./location-fields";
 import OtherFields from "./other-fields";
 import OverviewFields from "./overview-fields";
 import PricingFields from "./pricing-fields";
@@ -25,6 +25,13 @@ import { productSchema, Product } from "./zod-schema";
 import toast from "react-hot-toast";
 import DossierFields from "./dossier-fields";
 import DepartureDatesField from "./departure-date";
+
+import dynamic from "next/dynamic";
+
+const LocationFields = dynamic(() => import("./location-fields"), {
+  ssr: false,
+  loading: () => <div>Loading map...</div>,
+});
 
 // Define product types
 export type ProductType = "trek" | "tour" | "activities";

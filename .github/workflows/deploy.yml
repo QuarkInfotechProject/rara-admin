@@ -11,7 +11,7 @@ env:
   SSH_HOST: "202.51.70.78"                       # 🌐 Server IP
   SSH_USER: "ubuntu"                             # 👤 SSH username
   SSH_PORT: "22"                                 # 🔌 SSH port
-  PROJECT_PATH: "/var/www/admin.raratreks.com"   # 📂 Project directory
+  PROJECT_PATH: "admin"   # 📂 Project directory
   BRANCH: "main"                                 # 🌱 Git branch to deploy
 
 jobs:

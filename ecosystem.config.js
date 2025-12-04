@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'rara.admin.quarkinfotech.com',
+      name: 'admin.raratreks.com',
       script: 'npm',
       exec_mode: 'cluster', // Enables clustering
       instances: '1', // Change to "max" to use all available cores

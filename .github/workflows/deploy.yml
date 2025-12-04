@@ -5,7 +5,11 @@ on:
     branches:
       - main
 
+# Define everything here
 env:
+  SSH_HOST: "202.51.70.78"
+  SSH_USER: "ubuntu"
+  SSH_PORT: "22"
   PROJECT_PATH: "/home/ubuntu/admin"
   BRANCH: "main"
 
@@ -20,13 +24,13 @@ jobs:
       - name: 🔐 SSH + Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          port: ${{ secrets.SERVER_PORT }}
+          host: ${{ env.SSH_HOST }}
+          username: ${{ env.SSH_USER }}
+          port: ${{ env.SSH_PORT }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script_stop: false
 
-          # THIS IS THE KEY FIX — these envs go inside the SSH session:
+          # THIS IS THE CRITICAL FIX — pass env vars into SSH session
           envs: PROJECT_PATH,BRANCH
 
           script: |
@@ -36,7 +40,7 @@ jobs:
             cd $PROJECT_PATH || { echo "❌ Directory not found"; exit 1; }
 
             echo "🔄 Pulling latest code..."
-            git pull origin $BRANCH || { echo '❌ Git pull failed'; exit 1; }
+            git pull origin $BRANCH || { echo "❌ Git pull failed"; exit 1; }
 
             echo "📦 Installing dependencies..."
             npm install --legacy-peer-deps

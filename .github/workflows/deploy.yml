@@ -23,38 +23,38 @@ jobs:
     - name: 🔐 SSH into Server and Deploy
       uses: appleboy/ssh-action@v1.0.3
       with:
-        host: ${{ env.SSH_HOST }}
-        username: ${{ env.SSH_USER }}
-        port: ${{ env.SSH_PORT }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script_stop: false
-        use_insecure_cipher: true
+            host: ${{ env.SSH_HOST }}
+            username: ${{ env.SSH_USER }}
+            port: ${{ env.SSH_PORT }}
+            key: ${{ secrets.SERVER_SSH_KEY }}
+            script_stop: false
+            use_insecure_cipher: true
 
-        script: |
-          # Disable first-time SSH host prompt
-          mkdir -p ~/.ssh
-          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
-          chmod 600 ~/.ssh/config
+            script: |
+              # Disable first-time SSH host prompt
+              mkdir -p ~/.ssh
+              echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+              chmod 600 ~/.ssh/config
 
-          echo -e "\033[1;33m🚀 Starting deployment...\033[0m"
+              echo -e "\033[1;33m🚀 Starting deployment...\033[0m"
 
-          echo -e "\033[1;36m📁 Entering project directory...\033[0m"
-          cd $PROJECT_PATH || { echo "❌ ERROR: Project path not found"; exit 1; }
+              echo -e "\033[1;36m📁 Entering project directory...\033[0m"
+              cd $PROJECT_PATH || { echo "❌ ERROR: Project path not found"; exit 1; }
 
-          echo -e "\033[1;35m🔍 Pulling latest updates...\033[0m"
-          git pull origin $BRANCH || { echo "❌ Git pull failed"; exit 1; }
-          echo -e "\033[0;32m✔ Code updated.\033[0m"
+              echo -e "\033[1;35m🔍 Pulling latest updates...\033[0m"
+              git pull origin $BRANCH || { echo "❌ Git pull failed"; exit 1; }
+              echo -e "\033[0;32m✔ Code updated.\033[0m"
 
-          echo -e "\033[1;34m📦 Installing dependencies...\033[0m"
-          npm install || { echo "❌ npm install failed"; exit 1; }
-          echo -e "\033[0;32m✔ Dependencies installed.\033[0m"
+              echo -e "\033[1;34m📦 Installing dependencies...\033[0m"
+              npm install || { echo "❌ npm install failed"; exit 1; }
+              echo -e "\033[0;32m✔ Dependencies installed.\033[0m"
 
-          echo -e "\033[1;33m🔨 Building project...\033[0m"
-          npm run build || { echo "❌ Build failed"; exit 1; }
-          echo -e "\033[0;32m✔ Build completed.\033[0m"
+              echo -e "\033[1;33m🔨 Building project...\033[0m"
+              npm run build || { echo "❌ Build failed"; exit 1; }
+              echo -e "\033[0;32m✔ Build completed.\033[0m"
 
-          echo -e "\033[1;36m⚙️ Reloading PM2 (zero downtime)...\033[0m"
-          pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
-          echo -e "\033[0;32m✔ PM2 reload complete.\033[0m"
+              echo -e "\033[1;36m⚙️ Reloading PM2 (zero downtime)...\033[0m"
+              pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
+              echo -e "\033[0;32m✔ PM2 reload complete.\033[0m"
 
-          echo -e "\033[1;32m🎉 Deployment successful!\033[0m"
+              echo -e "\033[1;32m🎉 Deployment successful!\033[0m"

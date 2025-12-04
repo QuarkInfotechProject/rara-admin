@@ -1,32 +1,82 @@
-name: 🚀 Deploy to VPS
+name: Deploy to Server
 
+# Trigger deployment on push to main branch
 on:
   push:
     branches:
       - main
 
+# Environment variables (editable)
+env:
+  SSH_HOST: "202.51.70.78"                       # 🌐 Server IP
+  SSH_USER: "ubuntu"                             # 👤 SSH username
+  SSH_PORT: "22"                                 # 🔌 SSH port
+  PROJECT_PATH: "/var/www/admin.raratreks.com"   # 📂 Project directory
+  BRANCH: "main"                                 # 🌱 Git branch to deploy
+
 jobs:
   deploy:
-    name: Deploy via SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⏳ Checkout Repo
-        uses: actions/checkout@v3
+    # -----------------------------
+    # 🛎️ Step 1: Checkout Code
+    # -----------------------------
+    - name: 🛎️ Checkout Code
+      uses: actions/checkout@v3
 
-      - name: 🔐 Setup SSH
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    # -----------------------------
+    # 🔐 Step 2: SSH + Deploy
+    # -----------------------------
+    - name: 🔐 SSH into Server and Deploy
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ env.SSH_HOST }}
+        username: ${{ env.SSH_USER }}
+        port: ${{ env.SSH_PORT }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script_stop: false
+        skip_verify: true              # 🚫 Skip SSH host-key checking (no first-time prompts)
+        
+        script: |
+          # 🌟 START DEPLOYMENT
+          echo -e "\033[1;33m🚀 Starting deployment...\033[0m"
 
-      - name: 🚀 Deploy to VPS
-        run: |
-          echo "Connecting and deploying NodeJS..."
-          ssh -o StrictHostKeyChecking=no quark4330@45.117.153.69 -p 2025 "
-            cd /home/quarkinfotech.com/rara.admin.quarkinfotech.com/ &&
-            git remote set-url origin https://x-access-token:${{ secrets.GIT_AUTH_TOKEN }}@github.com/QuarkInfotechProject/rara-admin.git  &&
-            git pull origin main &&
-            pnpm install &&
-            pnpm run build &&
-            pm2 start ecosystem.config.js || pm2 restart ecosystem.config.js
-            "
+          # -----------------------------
+          # 📂 Navigate to project
+          # -----------------------------
+          echo -e "\033[1;36m📁 Switching to project directory...\033[0m"
+          cd $PROJECT_PATH
+
+          # -----------------------------
+          # 🔄 Pull Latest Changes
+          # -----------------------------
+          echo -e "\033[1;35m🔍 Checking for latest updates...\033[0m"
+          git pull origin $BRANCH
+          echo -e "\033[0;32m✔ Code updated.\033[0m"
+
+          # -----------------------------
+          # 📦 Install Dependencies
+          # -----------------------------
+          echo -e "\033[1;34m📦 Installing dependencies...\033[0m"
+          npm install
+          echo -e "\033[0;32m✔ Dependencies installed.\033[0m"
+
+          # -----------------------------
+          # 🔨 Build Project
+          # -----------------------------
+          echo -e "\033[1;33m🔨 Building project...\033[0m"
+          npm run build
+          echo -e "\033[0;32m✔ Build completed.\033[0m"
+
+          # -----------------------------
+          # ⚙️ Restart PM2
+          # -----------------------------
+          echo -e "\033[1;36m⚙️ Restarting PM2 process...\033[0m"
+          pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
+          echo -e "\033[0;32m✔ PM2 restarted.\033[0m"
+
+          # -----------------------------
+          # 🎉 Done!
+          # -----------------------------
+          echo -e "\033[1;32m🎉 Deployment complete! Everything is up to date.\033[0m"

@@ -1,33 +1,25 @@
 name: Deploy to Server
 
-# Trigger deployment on push to main branch
 on:
   push:
     branches:
       - main
 
-# Environment variables (editable)
 env:
-  SSH_HOST: "202.51.70.78"                       # 🌐 Server IP
-  SSH_USER: "ubuntu"                             # 👤 SSH username
-  SSH_PORT: "22"                                 # 🔌 SSH port
-  PROJECT_PATH: "admin"   # 📂 Project directory
-  BRANCH: "main"                                 # 🌱 Git branch to deploy
+  SSH_HOST: "202.51.70.78"
+  SSH_USER: "ubuntu"
+  SSH_PORT: "22"
+  PROJECT_PATH: "/home/ubuntu/admin"   # <-- FIXED ABSOLUTE PATH
+  BRANCH: "main"
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # -----------------------------
-    # 🛎️ Step 1: Checkout Code
-    # -----------------------------
     - name: 🛎️ Checkout Code
       uses: actions/checkout@v3
 
-    # -----------------------------
-    # 🔐 Step 2: SSH + Deploy
-    # -----------------------------
     - name: 🔐 SSH into Server and Deploy
       uses: appleboy/ssh-action@v1.0.3
       with:
@@ -36,47 +28,33 @@ jobs:
         port: ${{ env.SSH_PORT }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script_stop: false
-        skip_verify: true              # 🚫 Skip SSH host-key checking (no first-time prompts)
-        
+        use_insecure_cipher: true
+
         script: |
-          # 🌟 START DEPLOYMENT
+          # Disable first-time SSH host prompt
+          mkdir -p ~/.ssh
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
+
           echo -e "\033[1;33m🚀 Starting deployment...\033[0m"
 
-          # -----------------------------
-          # 📂 Navigate to project
-          # -----------------------------
-          echo -e "\033[1;36m📁 Switching to project directory...\033[0m"
-          cd $PROJECT_PATH
+          echo -e "\033[1;36m📁 Entering project directory...\033[0m"
+          cd $PROJECT_PATH || { echo "❌ ERROR: Project path not found"; exit 1; }
 
-          # -----------------------------
-          # 🔄 Pull Latest Changes
-          # -----------------------------
-          echo -e "\033[1;35m🔍 Checking for latest updates...\033[0m"
-          git pull origin $BRANCH
+          echo -e "\033[1;35m🔍 Pulling latest updates...\033[0m"
+          git pull origin $BRANCH || { echo "❌ Git pull failed"; exit 1; }
           echo -e "\033[0;32m✔ Code updated.\033[0m"
 
-          # -----------------------------
-          # 📦 Install Dependencies
-          # -----------------------------
           echo -e "\033[1;34m📦 Installing dependencies...\033[0m"
-          npm install
+          npm install || { echo "❌ npm install failed"; exit 1; }
           echo -e "\033[0;32m✔ Dependencies installed.\033[0m"
 
-          # -----------------------------
-          # 🔨 Build Project
-          # -----------------------------
           echo -e "\033[1;33m🔨 Building project...\033[0m"
-          npm run build
+          npm run build || { echo "❌ Build failed"; exit 1; }
           echo -e "\033[0;32m✔ Build completed.\033[0m"
 
-          # -----------------------------
-          # ⚙️ Restart PM2
-          # -----------------------------
-          echo -e "\033[1;36m⚙️ Restarting PM2 process...\033[0m"
-          pm2 restart ecosystem.config.js || pm2 start ecosystem.config.js
-          echo -e "\033[0;32m✔ PM2 restarted.\033[0m"
+          echo -e "\033[1;36m⚙️ Reloading PM2 (zero downtime)...\033[0m"
+          pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
+          echo -e "\033[0;32m✔ PM2 reload complete.\033[0m"
 
-          # -----------------------------
-          # 🎉 Done!
-          # -----------------------------
-          echo -e "\033[1;32m🎉 Deployment complete! Everything is up to date.\033[0m"
+          echo -e "\033[1;32m🎉 Deployment successful!\033[0m"

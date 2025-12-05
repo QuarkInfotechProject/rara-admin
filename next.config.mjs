@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
   images: {
-    remotePatterns: [{ hostname: "rara.api.quarkinfotech.com" }],
+    remotePatterns: [{ hostname: "api.raratreks.com" }],
     // remotePatterns: [{ hostname: "localhost" }],
   },
 };

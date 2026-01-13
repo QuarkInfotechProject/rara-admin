@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import AgentActions from "@/components/agents/agent-actions";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
@@ -14,7 +14,7 @@ import { PaginatedAgentResponse } from "@/types/agents.types";
 import { PaginatedResponse } from "@/types/index.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Agents() {
+function AgentsContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -86,4 +86,13 @@ function Agents() {
   );
 }
 
+function Agents() {
+  return (
+    <Suspense fallback={<LoadingSkeletion />}>
+      <AgentsContent />
+    </Suspense>
+  );
+}
+
 export default Agents;
+

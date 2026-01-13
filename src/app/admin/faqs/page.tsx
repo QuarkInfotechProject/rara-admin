@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import FAQActions from "@/components/faqs/faq-actions";
 import FAQFilter from "@/components/faqs/faq-filter";
 import LoadingSkeletion from "@/components/loading-skeletion";
@@ -14,7 +14,7 @@ import { FAQ } from "@/types/faqs.types";
 import { PaginatedResponse } from "@/types/index.types";
 import { useQuery } from "@tanstack/react-query";
 
-function FAQs() {
+function FAQsContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -86,4 +86,13 @@ function FAQs() {
   );
 }
 
+function FAQs() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={3} />}>
+      <FAQsContent />
+    </Suspense>
+  );
+}
+
 export default FAQs;
+

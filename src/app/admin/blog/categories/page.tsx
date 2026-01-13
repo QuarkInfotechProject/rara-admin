@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import CategoryActions from "@/components/blog/category-actions";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
@@ -13,7 +13,7 @@ import { PaginatedBlogCategoryResponse } from "@/types/blog.types";
 import { PaginatedResponse } from "@/types/index.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Categories() {
+function CategoriesContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -82,4 +82,13 @@ function Categories() {
   );
 }
 
+function Categories() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={3} />}>
+      <CategoriesContent />
+    </Suspense>
+  );
+}
+
 export default Categories;
+

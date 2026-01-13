@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         name: "admin-token",
         value: tokenValue,
         httpOnly: true,
-        sameSite: true,
+        sameSite: "lax",
         secure: true,
         path: "/",
         expires: expiresAt,

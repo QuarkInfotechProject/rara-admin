@@ -2,7 +2,7 @@
 import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import CreateGroupModal from "@/components/groups/create-group-modal";
 import UpdateGroupModal from "@/components/groups/update-group-modal";
 import LoadingSkeletion from "@/components/loading-skeletion";
@@ -14,7 +14,7 @@ import { Group } from "@/types/users.types";
 import { IconEdit } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 
-function Roles() {
+function RolesContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -76,4 +76,13 @@ function Roles() {
   );
 }
 
+function Roles() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={2} />}>
+      <RolesContent />
+    </Suspense>
+  );
+}
+
 export default Roles;
+

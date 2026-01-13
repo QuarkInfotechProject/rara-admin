@@ -94,6 +94,23 @@ interface DepartureProps {
 function DepartureDate(props: DepartureProps) {
   const today = new Date().toISOString().split("T")[0];
 
+  // Helper to safely get the min date for "departure_to" field
+  const getMinEndDate = () => {
+    if (!props.departure_from) {
+      return today;
+    }
+
+    const startDate = new Date(props.departure_from);
+    // Check if the date is valid
+    if (isNaN(startDate.getTime())) {
+      return today;
+    }
+
+    // Add one day (86400000 ms)
+    const nextDay = new Date(startDate.getTime() + 86400000);
+    return nextDay.toISOString().split("T")[0];
+  };
+
   const getDateValidationErrors = () => {
     const errors: string[] = [];
 
@@ -126,11 +143,10 @@ function DepartureDate(props: DepartureProps) {
 
   return (
     <div
-      className={`relative border rounded-lg p-3 grid gap-4 ${
-        hasError
-          ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-700"
-          : "border-dashed"
-      }`}
+      className={`relative border rounded-lg p-3 grid gap-4 ${hasError
+        ? "border-red-300 bg-red-50 dark:bg-red-950/20 dark:border-red-700"
+        : "border-dashed"
+        }`}
     >
       <div className="grid grid-cols-2 gap-4">
         <div>
@@ -158,13 +174,7 @@ function DepartureDate(props: DepartureProps) {
                 departure_to: e.target.value,
               })
             }
-            min={
-              props.departure_from
-                ? new Date(new Date(props.departure_from).getTime() + 86400000)
-                    .toISOString()
-                    .split("T")[0]
-                : today
-            }
+            min={getMinEndDate()}
             placeholder="Select end date"
             className={hasError ? "border-red-300" : ""}
           />

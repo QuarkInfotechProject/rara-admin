@@ -3,6 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import TagActions from "@/components/product/tag/tag-actions";
@@ -13,7 +14,7 @@ import { ApiResponse } from "@/types/index.types";
 import { Tag as TagType } from "@/types/products.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Tag() {
+function TagContent() {
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
   const { data, isPending } = useQuery({
@@ -74,4 +75,13 @@ function Tag() {
   );
 }
 
+function Tag() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={4} />}>
+      <TagContent />
+    </Suspense>
+  );
+}
+
 export default Tag;
+

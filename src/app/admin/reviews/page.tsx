@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import ReviewActions from "@/components/reviews/review-actions";
@@ -12,7 +12,7 @@ import { PaginatedResponse } from "@/types/index.types";
 import { Review } from "@/types/reviews.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Reviews() {
+function ReviewsContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -91,4 +91,13 @@ function Reviews() {
   );
 }
 
+function Reviews() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={5} />}>
+      <ReviewsContent />
+    </Suspense>
+  );
+}
+
 export default Reviews;
+

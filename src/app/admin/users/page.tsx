@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import jsonToCsvExport from "json-to-csv-export";
 import { Button } from "@/components/ui/button";
 import { IconFileExport } from "@tabler/icons-react";
 
-function AdminUsers() {
+function UsersContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -96,4 +96,13 @@ function AdminUsers() {
   );
 }
 
-export default AdminUsers;
+function Users() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={5} />}>
+      <UsersContent />
+    </Suspense>
+  );
+}
+
+export default Users;
+

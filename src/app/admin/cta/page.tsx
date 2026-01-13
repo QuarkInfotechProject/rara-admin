@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import CTAActions from "@/components/cta/cta-actions";
 import CTAFilter from "@/components/cta/cta-filter";
 import LoadingSkeletion from "@/components/loading-skeletion";
@@ -15,7 +15,7 @@ import { CTA } from "@/types/cta.types";
 import { PaginatedResponse } from "@/types/index.types";
 import { useQuery } from "@tanstack/react-query";
 
-function CTAs() {
+function CTAsContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -95,4 +95,13 @@ function CTAs() {
   );
 }
 
+function CTAs() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={5} />}>
+      <CTAsContent />
+    </Suspense>
+  );
+}
+
 export default CTAs;
+

@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import BookingActions from "@/components/bookings/booking-actions";
 import BookingFilter from "@/components/bookings/booking-filter";
 import LoadingSkeletion from "@/components/loading-skeletion";
@@ -16,7 +16,7 @@ import { differenceInCalendarDays } from "date-fns";
 import { cn } from "@/lib/utils";
 import BookingStatusTabs from "@/components/bookings/booking-status-tabs";
 
-function Bookings() {
+function BookingsContent() {
   const [hasMore, setHasMore] = useState(false);
   const filters = useBookingsFilter();
 
@@ -131,4 +131,13 @@ function Bookings() {
   );
 }
 
+function Bookings() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={7} />}>
+      <BookingsContent />
+    </Suspense>
+  );
+}
+
 export default Bookings;
+

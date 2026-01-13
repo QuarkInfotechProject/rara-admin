@@ -3,6 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import AmenityActions from "@/components/product/amenity/amenity-actions";
@@ -12,7 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Amenity } from "@/types/products.types";
 import { useQuery } from "@tanstack/react-query";
 
-function AmenityPage() {
+function AmenityPageContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
 
@@ -73,4 +74,13 @@ function AmenityPage() {
   );
 }
 
+function AmenityPage() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={4} />}>
+      <AmenityPageContent />
+    </Suspense>
+  );
+}
+
 export default AmenityPage;
+

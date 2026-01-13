@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import { Group, AdminUser } from "@/types/users.types";
 import { useQuery } from "@tanstack/react-query";
 import UserActions from "@/components/admin-users/user-actions";
 
-function AdminUsers() {
+function AdminUsersContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -102,4 +102,13 @@ function AdminUsers() {
   );
 }
 
+function AdminUsers() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={5} />}>
+      <AdminUsersContent />
+    </Suspense>
+  );
+}
+
 export default AdminUsers;
+

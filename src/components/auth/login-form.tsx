@@ -42,7 +42,8 @@ const LoginForm = () => {
     try {
       const { data } = await axios.post(`/api/login`, formData);
       toast.success(`${data.message}`);
-      router.push("/admin");
+      // Use full page reload to ensure cookie is properly set before server components render
+      window.location.href = "/admin";
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data.message || error.message);

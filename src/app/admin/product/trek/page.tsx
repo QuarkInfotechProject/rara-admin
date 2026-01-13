@@ -3,7 +3,7 @@ import axios from "axios";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import ProductActions from "@/components/product/product-actions";
@@ -15,7 +15,7 @@ import { PaginatedResponse } from "@/types/index.types";
 import { Product } from "@/types/products.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Treks() {
+function TreksContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
@@ -93,4 +93,13 @@ function Treks() {
   );
 }
 
+function Treks() {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={4} />}>
+      <TreksContent />
+    </Suspense>
+  );
+}
+
 export default Treks;
+

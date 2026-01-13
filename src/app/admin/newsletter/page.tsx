@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import LoadingSkeletion from "@/components/loading-skeletion";
 import PageLayout from "@/components/page-layout";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ interface SubscribersResponse {
   };
 }
 
-const NewsLetter = () => {
+const NewsLetterContent = () => {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
@@ -170,4 +170,13 @@ const NewsLetter = () => {
   );
 };
 
+const NewsLetter = () => {
+  return (
+    <Suspense fallback={<LoadingSkeletion columns={4} />}>
+      <NewsLetterContent />
+    </Suspense>
+  );
+};
+
 export default NewsLetter;
+

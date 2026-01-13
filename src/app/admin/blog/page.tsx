@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { PlusCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import PostActions from "@/components/blog/post-actions";
 import PostFilter from "@/components/blog/post-filter";
 import LoadingSkeletion from "@/components/loading-skeletion";
@@ -16,7 +16,7 @@ import { PaginatedBlogResponse } from "@/types/blog.types";
 import { PaginatedResponse } from "@/types/index.types";
 import { useQuery } from "@tanstack/react-query";
 
-function Blog() {
+function BlogContent() {
   const [hasMore, setHasMore] = useState(false);
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) ?? 1;
@@ -104,4 +104,13 @@ function Blog() {
   );
 }
 
+function Blog() {
+  return (
+    <Suspense fallback={<LoadingSkeletion />}>
+      <BlogContent />
+    </Suspense>
+  );
+}
+
 export default Blog;
+
